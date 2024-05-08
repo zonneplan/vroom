@@ -100,14 +100,7 @@ inline Eval addition_cost(const Input& input,
     }
   }
 
-  Duration service_duration = input.jobs[job_rank].service_for_vehicle(v);
-
-  Eval total_eval =
-    previous_eval + next_eval - old_edge_eval +
-    Eval(v.cost_wrapper.get_discrete_duration_cost_factor() * service_duration,
-         service_duration);
-
-  return total_eval;
+  return previous_eval + next_eval - old_edge_eval;
 }
 
 // Evaluate adding pickup with rank job_rank and associated delivery
