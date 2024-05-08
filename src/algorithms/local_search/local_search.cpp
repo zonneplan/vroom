@@ -1833,16 +1833,16 @@ void LocalSearch<Route,
 
 #ifndef NDEBUG
       // Update route costs.
-      const Eval previous_eval =
+      const auto previous_eval =
         std::accumulate(update_candidates.begin(),
                         update_candidates.end(),
                         Eval(),
-                        [&](Eval sum, Eval c) {
+                        [&](auto sum, auto c) {
                           return sum + _sol_state.route_evals[c];
                         });
 #endif
 
-      for (Index v_rank : update_candidates) {
+      for (auto v_rank : update_candidates) {
         _sol_state.update_route_eval(_sol[v_rank].route, v_rank);
         _sol_state.update_route_bbox(_sol[v_rank].route, v_rank);
 
@@ -1852,15 +1852,15 @@ void LocalSearch<Route,
       }
 
 #ifndef NDEBUG
-      const Eval new_eval =
+      const auto new_eval =
         std::accumulate(update_candidates.begin(),
                         update_candidates.end(),
                         Eval(),
-                        [&](Eval sum, auto c) {
+                        [&](auto sum, auto c) {
                           return sum + _sol_state.route_evals[c];
                         });
 
-      if (new_eval + best_gain == previous_eval) {
+      if (new_eval + best_gain != previous_eval) {
         std::cerr << "new_eval: " << new_eval << std::endl;
         std::cerr << "best_gain: " << best_gain << std::endl;
         std::cerr << "previous_eval: " << previous_eval << std::endl;
