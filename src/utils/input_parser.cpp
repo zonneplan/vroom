@@ -664,7 +664,7 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
     const size_t min_job_service_size =
       std::accumulate(input.jobs.begin(),
                       input.jobs.end(),
-                      0,
+                      std::numeric_limits<size_t>::max(),
                       [](size_t min, const Job& job) {
                         return std::min(min, job.service.size());
                       });
