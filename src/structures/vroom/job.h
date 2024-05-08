@@ -17,6 +17,7 @@ All rights reserved (see LICENSE).
 #include "structures/vroom/amount.h"
 #include "structures/vroom/location.h"
 #include "structures/vroom/time_window.h"
+#include "structures/vroom/vehicle.h"
 
 namespace vroom {
 
@@ -64,13 +65,8 @@ struct Job {
     return location.index();
   }
 
-  Duration service_for_vehicle(Index vehicle_rank) const {
-    return service[vehicle_rank % service.size()];
-  }
-
-  Duration average_service() const {
-    return std::accumulate(service.begin(), service.end(), 0) /
-           static_cast<Duration>(service.size());
+  Duration service_for_vehicle(const Vehicle& vehicle) const {
+    return service[vehicle.service_index % service.size()];
   }
 
   bool is_valid_start(Duration time) const;

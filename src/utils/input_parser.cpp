@@ -12,6 +12,7 @@ All rights reserved (see LICENSE).
 #include "../include/rapidjson/include/rapidjson/document.h"
 #include "../include/rapidjson/include/rapidjson/error/en.h"
 
+#include "utils/helpers.h"
 #include "utils/input_parser.h"
 
 namespace vroom::io {
@@ -393,7 +394,8 @@ inline std::vector<VehicleStep> get_vehicle_steps(const rapidjson::Value& v) {
 }
 
 inline Vehicle get_vehicle(const rapidjson::Value& json_vehicle,
-                           unsigned amount_size) {
+                           unsigned amount_size,
+                           const TimeWindow& tw = TimeWindow()) {
   check_id(json_vehicle, "vehicle");
   auto v_id = json_vehicle["id"].GetUint64();
 
@@ -456,11 +458,12 @@ inline Vehicle get_vehicle(const rapidjson::Value& json_vehicle,
                  profile,
                  get_amount(json_vehicle, "capacity", amount_size),
                  get_skills(json_vehicle),
-                 get_vehicle_time_window(json_vehicle),
+                 tw,
                  get_vehicle_breaks(json_vehicle, amount_size),
                  get_string(json_vehicle, "description"),
                  get_vehicle_costs(json_vehicle),
                  get_double(json_vehicle, "speed_factor"),
+                 get_value_for<Index>(json_vehicle, "service_index"),
                  get_value_for<size_t>(json_vehicle, "max_tasks"),
                  get_value_for<UserDuration>(json_vehicle, "max_travel_time"),
                  get_value_for<UserDistance>(json_vehicle, "max_distance"),
@@ -577,7 +580,23 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
   for (rapidjson::SizeType i = 0; i < json_input["vehicles"].Size(); ++i) {
     auto& json_vehicle = json_input["vehicles"][i];
 
-    input.add_vehicle(get_vehicle(json_vehicle, amount_size));
+    if (!json_vehicle.HasMember("time_windows")) {
+      input.add_vehicle(get_vehicle(json_vehicle,
+                                    amount_size,
+                                    get_vehicle_time_window(json_vehicle)));
+      continue;
+    }
+
+    std::vector<TimeWindow> timeWindows = get_time_windows(json_vehicle);
+
+    check_id(json_vehicle, "vehicle");
+    auto v_id = json_vehicle["id"].GetUint64();
+    utils::check_tws(timeWindows, v_id, "vehicle");
+
+    for (const TimeWindow& tw : timeWindows) {
+      Vehicle vehicle = get_vehicle(json_vehicle, amount_size, tw);
+      input.add_vehicle(vehicle);
+    }
   }
 
   // Add all tasks.
@@ -630,6 +649,30 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
                    get_string(json_delivery, "description"));
 
       input.add_shipment(pickup, delivery);
+    }
+  }
+
+  if (!input.jobs.empty()) {
+    const Index max_service_index =
+      std::accumulate(input.vehicles.begin(),
+                      input.vehicles.end(),
+                      0,
+                      [](Index max, const Vehicle& vehicle) {
+                        return std::max(max, vehicle.service_index);
+                      });
+
+    const size_t min_job_service_size =
+      std::accumulate(input.jobs.begin(),
+                      input.jobs.end(),
+                      std::numeric_limits<size_t>::max(),
+                      [](size_t min, const Job& job) {
+                        return std::min(min, job.service.size());
+                      });
+
+    if (max_service_index >= min_job_service_size) {
+      throw InputException(
+        "The service_index of a vehicle is higher than the number of service "
+        "times for a job.");
     }
   }
 
