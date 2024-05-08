@@ -10,6 +10,7 @@ All rights reserved (see LICENSE).
 
 */
 
+#include <ostream>
 #include <tuple>
 
 #include "structures/typedefs.h"
@@ -73,6 +74,12 @@ struct Eval {
   friend bool operator!=(const Eval& lhs, const Eval& rhs) {
     return lhs.cost != rhs.cost || lhs.duration != rhs.duration ||
            lhs.distance != rhs.distance;
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Eval& eval) {
+    os << "Eval(cost: " << eval.cost << ", duration: " << eval.duration
+       << ", distance: " << eval.distance << ")";
+    return os;
   }
 };
 
