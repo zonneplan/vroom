@@ -17,6 +17,7 @@ All rights reserved (see LICENSE).
 #include "structures/vroom/amount.h"
 #include "structures/vroom/location.h"
 #include "structures/vroom/time_window.h"
+#include "structures/vroom/vehicle.h"
 
 namespace vroom {
 
