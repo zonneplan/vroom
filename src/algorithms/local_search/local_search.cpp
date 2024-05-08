@@ -1860,11 +1860,9 @@ void LocalSearch<Route,
                           return sum + _sol_state.route_evals[c];
                         });
 
-      if (new_eval + best_gain != previous_eval) {
-        std::cerr << "new_eval: " << new_eval << std::endl;
-        std::cerr << "best_gain: " << best_gain << std::endl;
-        std::cerr << "previous_eval: " << previous_eval << std::endl;
-      }
+      std::cerr << "new_eval: " << new_eval << std::endl;
+      std::cerr << "best_gain: " << best_gain << std::endl;
+      std::cerr << "previous_eval: " << previous_eval << std::endl;
 
       assert(new_eval + best_gain == previous_eval);
 #endif
