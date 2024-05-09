@@ -480,9 +480,6 @@ void LocalSearch<Route,
               // gain.
               best_gains[source][source] = r.gain();
               best_ops[source][source] = std::make_unique<PriorityReplace>(r);
-
-              std::cerr << "PriorityReplace: " << r.gain() << " [" << source
-                        << "][" << source << "]" << std::endl;
             }
           }
         }
@@ -587,9 +584,6 @@ void LocalSearch<Route,
                   best_gains[source][source] = r.gain();
                   best_ops[source][source] =
                     std::make_unique<UnassignedExchange>(r);
-
-                  std::cerr << "UnassignedExchange: " << r.gain() << " ["
-                            << source << "][" << source << "]" << std::endl;
                 }
               }
             }
@@ -959,9 +953,6 @@ void LocalSearch<Route,
           if (best_gains[source][target] < r.gain() && r.is_valid()) {
             best_gains[source][target] = r.gain();
             best_ops[source][target] = std::make_unique<TwoOpt>(r);
-
-            std::cerr << "TwoOpt: " << r.gain() << " [" << source << "]["
-                      << target << "]" << std::endl;
           }
         }
       }
@@ -1065,9 +1056,6 @@ void LocalSearch<Route,
           if (best_gains[source][target] < r.gain() && r.is_valid()) {
             best_gains[source][target] = r.gain();
             best_ops[source][target] = std::make_unique<ReverseTwoOpt>(r);
-
-            std::cerr << "ReverseTwoOpt: " << r.gain() << " [" << source << "]["
-                      << target << "]" << std::endl;
           }
         }
       }
@@ -1134,9 +1122,6 @@ void LocalSearch<Route,
             if (best_gains[source][target] < r.gain() && r.is_valid()) {
               best_gains[source][target] = r.gain();
               best_ops[source][target] = std::make_unique<Relocate>(r);
-
-              std::cerr << "Relocate: " << r.gain() << " [" << source << "]["
-                        << target << "]" << std::endl;
             }
           }
         }
@@ -1237,9 +1222,6 @@ void LocalSearch<Route,
         if (best_gains[source][target] < op.gain() && op.is_valid()) {
           best_gains[source][target] = op.gain();
           best_ops[source][target] = std::make_unique<TSPFix>(op);
-
-          std::cerr << "TSPFix: " << op.gain() << " [" << source << "]["
-                    << target << "]" << std::endl;
         }
       }
     }
@@ -1292,9 +1274,6 @@ void LocalSearch<Route,
           if (best_gains[source][source] < r.gain() && r.is_valid()) {
             best_gains[source][source] = r.gain();
             best_ops[source][source] = std::make_unique<IntraExchange>(r);
-
-            std::cerr << "IntraExchange: " << r.gain() << " [" << source << "]["
-                      << source << "]" << std::endl;
           }
         }
       }
@@ -1500,9 +1479,6 @@ void LocalSearch<Route,
           if (best_gains[source][source] < r.gain() && r.is_valid()) {
             best_gains[source][source] = r.gain();
             best_ops[source][source] = std::make_unique<IntraRelocate>(r);
-
-            std::cerr << "IntraRelocate: " << r.gain() << " [" << source << "]["
-                      << source << "]" << std::endl;
           }
         }
       }
@@ -1682,9 +1658,6 @@ void LocalSearch<Route,
           if (best_gains[source][target] < pdr.gain() && pdr.is_valid()) {
             best_gains[source][target] = pdr.gain();
             best_ops[source][target] = std::make_unique<PDShift>(pdr);
-
-            std::cerr << "PDShift: " << pdr.gain() << " [" << source << "]["
-                      << target << "]" << std::endl;
           }
         }
       }
@@ -1737,9 +1710,6 @@ void LocalSearch<Route,
         if (best_gains[source][target] < re.gain() && re.is_valid()) {
           best_gains[source][target] = re.gain();
           best_ops[source][target] = std::make_unique<RouteExchange>(re);
-
-          std::cerr << "RouteExchange: " << re.gain() << " [" << source << "]["
-                    << target << "]" << std::endl;
         }
       }
     }
@@ -1773,9 +1743,6 @@ void LocalSearch<Route,
         if (best_gains[source][target] < r.gain()) {
           best_gains[source][target] = r.gain();
           best_ops[source][target] = std::make_unique<SwapStar>(r);
-
-          std::cerr << "SwapStar: " << r.gain() << " [" << source << "]["
-                    << target << "]" << std::endl;
         }
       }
     }
@@ -1818,9 +1785,6 @@ void LocalSearch<Route,
           if (best_gains[source][target] < r.gain()) {
             best_gains[source][target] = r.gain();
             best_ops[source][target] = std::make_unique<RouteSplit>(r);
-
-            std::cerr << "RouteSplit: " << r.gain() << " [" << source << "]["
-                      << target << "]" << std::endl;
           }
         }
       }
@@ -1833,15 +1797,10 @@ void LocalSearch<Route,
     Index best_source = 0;
     Index best_target = 0;
 
-    std::cerr << "best_gain:" << best_gain << std::endl;
-
     for (unsigned s_v = 0; s_v < _nb_vehicles; ++s_v) {
       if (best_priorities[s_v] > best_priority) {
         best_priority = best_priorities[s_v];
         best_gain = best_gains[s_v][s_v];
-
-        std::cerr << "best_gain:" << best_gain << std::endl;
-
         best_source = s_v;
         best_target = s_v;
       }
@@ -1852,9 +1811,6 @@ void LocalSearch<Route,
         for (unsigned t_v = 0; t_v < _nb_vehicles; ++t_v) {
           if (best_gain < best_gains[s_v][t_v]) {
             best_gain = best_gains[s_v][t_v];
-
-            std::cerr << "best_gain:" << best_gain << std::endl;
-
             best_source = s_v;
             best_target = t_v;
           }
@@ -1904,9 +1860,11 @@ void LocalSearch<Route,
                           return sum + _sol_state.route_evals[c];
                         });
 
-      std::cerr << "new_eval: " << new_eval << std::endl;
-      std::cerr << "best_gain: " << best_gain << std::endl;
-      std::cerr << "previous_eval: " << previous_eval << std::endl;
+      if (new_eval + best_gain != previous_eval) {
+        std::cerr << "new_eval: " << new_eval << std::endl;
+        std::cerr << "best_gain: " << best_gain << std::endl;
+        std::cerr << "previous_eval: " << previous_eval << std::endl;
+      }
 
       assert(new_eval + best_gain == previous_eval);
 #endif
@@ -1946,8 +1904,6 @@ void LocalSearch<Route,
             best_gains[v][v_rank] = Eval();
             best_ops[v][v_rank] = std::unique_ptr<Operator>();
 
-            std::cerr << "Adding [" << v << "][" << v_rank << "]" << std::endl;
-
             s_t_pairs.emplace_back(v, v_rank);
             if (v != v_rank) {
               s_t_pairs.emplace_back(v_rank, v);
@@ -1982,9 +1938,6 @@ void LocalSearch<Route,
           best_gains[v][v] = Eval();
           best_priorities[v] = 0;
           best_ops[v][v] = std::unique_ptr<Operator>();
-
-          std::cerr << "Invalidating [" << v << "][" << v << "]" << std::endl;
-
           s_t_pairs.emplace_back(v, v);
         }
       }
@@ -2409,7 +2362,6 @@ void LocalSearch<Route,
     // small cost to closest node in another compatible route).
     Index best_rank = 0;
     Eval best_gain = NO_GAIN;
-    std::cerr << "best_gain:" << best_gain << std::endl;
 
     const auto& route_eval = _sol_state.route_evals[v];
 
@@ -2461,7 +2413,6 @@ void LocalSearch<Route,
 
       if (best_gain < current_gain && valid_removal) {
         best_gain = current_gain;
-        std::cerr << "best_gain:" << best_gain << std::endl;
         best_rank = r;
       }
     }
