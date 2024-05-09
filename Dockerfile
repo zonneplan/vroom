@@ -48,6 +48,8 @@ RUN apt-get update > /dev/null && \
     mkdir /conf
 
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
+COPY ./vroom-express-config.yml /conf/config.yml
+
 ENV VROOM_DOCKER=osrm \
     VROOM_LOG=/conf
 
