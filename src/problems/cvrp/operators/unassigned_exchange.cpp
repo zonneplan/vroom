@@ -86,10 +86,10 @@ void UnassignedExchange::compute_gain() {
       s_gain -= v.eval(u_index, _input.jobs[s_route[s_rank + 1]].index());
     }
 
-    Duration service_duration = _input.jobs[_u].service_for_vehicle(v);
-    s_gain -= Eval(v.cost_wrapper.get_discrete_duration_cost_factor() *
-                     service_duration,
-                   service_duration);
+    // Duration service_duration = _input.jobs[_u].service_for_vehicle(v);
+    // s_gain -= Eval(v.cost_wrapper.get_discrete_duration_cost_factor() *
+    //                  service_duration,
+    //                service_duration);
   } else {
     // No common edge so both gains can be computed independently.
     s_gain = _sol_state.node_gains[s_vehicle][s_rank] -
