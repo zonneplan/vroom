@@ -1879,7 +1879,8 @@ void LocalSearch<Route,
         std::cerr << "new_eval: " << new_eval << std::endl;
         std::cerr << "best_gain: " << best_gain << std::endl;
         std::cerr << "previous_eval: " << previous_eval << std::endl;
-        std::cerr << "addition_cost: " << best_unassigned_exchange << std::endl;
+        std::cerr << "addition_cost: " << addition_unassigned_exchange
+                  << std::endl;
       }
 
       assert(new_eval + best_gain == previous_eval);
