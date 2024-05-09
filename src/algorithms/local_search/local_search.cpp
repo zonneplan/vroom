@@ -395,8 +395,6 @@ void LocalSearch<Route,
     addition_unassigned_exchanges(_nb_vehicles,
                                   std::vector<Eval>(_nb_vehicles, Eval()));
 
-  UnassignedExchange best_unassigned_exchange;
-
   // Store best priority increase for matching move. Only operators
   // involving a single route and unassigned jobs can change overall
   // priority (currently only UnassignedExchange).
