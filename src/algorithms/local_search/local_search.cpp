@@ -391,6 +391,12 @@ void LocalSearch<Route,
                                             std::vector<Eval>(_nb_vehicles,
                                                               Eval()));
 
+  std::vector<std::vector<Eval>>
+    addition_unassigned_exchanges(_nb_vehicles,
+                                  std::vector<Eval>(_nb_vehicles, Eval()));
+
+  UnassignedExchange best_unassigned_exchange;
+
   // Store best priority increase for matching move. Only operators
   // involving a single route and unassigned jobs can change overall
   // priority (currently only UnassignedExchange).
@@ -398,6 +404,7 @@ void LocalSearch<Route,
 
   // Dummy init to enter first loop.
   Eval best_gain(static_cast<Cost>(1));
+  Eval addition_unassigned_exchange(static_cast<Cost>(1));
   Priority best_priority = 0;
 
   while (best_gain.cost > 0 || best_priority > 0) {
@@ -582,6 +589,13 @@ void LocalSearch<Route,
                   // This may potentially define a negative value as
                   // best gain in case priority_gain is non-zero.
                   best_gains[source][source] = r.gain();
+                  const auto& v = _input.vehicles[source];
+                  Duration service_duration =
+                    _input.jobs[u].service_for_vehicle(v);
+                  addition_unassigned_exchanges[source][source] =
+                    Eval(v.cost_wrapper.get_discrete_duration_cost_factor() *
+                           service_duration,
+                         service_duration);
                   best_ops[source][source] =
                     std::make_unique<UnassignedExchange>(r);
                 }
@@ -1801,6 +1815,7 @@ void LocalSearch<Route,
       if (best_priorities[s_v] > best_priority) {
         best_priority = best_priorities[s_v];
         best_gain = best_gains[s_v][s_v];
+        addition_unassigned_exchange = addition_unassigned_exchanges[s_v][s_v];
         best_source = s_v;
         best_target = s_v;
       }
@@ -1811,6 +1826,8 @@ void LocalSearch<Route,
         for (unsigned t_v = 0; t_v < _nb_vehicles; ++t_v) {
           if (best_gain < best_gains[s_v][t_v]) {
             best_gain = best_gains[s_v][t_v];
+            addition_unassigned_exchange =
+              addition_unassigned_exchanges[s_v][t_v];
             best_source = s_v;
             best_target = t_v;
           }
@@ -1864,6 +1881,7 @@ void LocalSearch<Route,
         std::cerr << "new_eval: " << new_eval << std::endl;
         std::cerr << "best_gain: " << best_gain << std::endl;
         std::cerr << "previous_eval: " << previous_eval << std::endl;
+        std::cerr << "addition_cost: " << best_unassigned_exchange << std::endl;
       }
 
       assert(new_eval + best_gain == previous_eval);
