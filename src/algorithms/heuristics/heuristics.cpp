@@ -241,7 +241,8 @@ Eval basic(const Input& input,
                                                            job_rank,
                                                            vehicle,
                                                            current_r.route,
-                                                           r);
+                                                           r,
+                                                           true);
 
             double current_cost =
               static_cast<double>(current_eval.cost) -
@@ -276,7 +277,8 @@ Eval basic(const Input& input,
                                                   job_rank + 1,
                                                   vehicle,
                                                   current_r.route,
-                                                  d_rank);
+                                                  d_rank,
+                                                  true);
             valid_delivery_insertions[d_rank] =
               current_r.is_valid_addition_for_tw_without_max_load(input,
                                                                   job_rank + 1,
@@ -288,7 +290,8 @@ Eval basic(const Input& input,
                                                     job_rank,
                                                     vehicle,
                                                     current_r.route,
-                                                    pickup_r);
+                                                    pickup_r,
+                                                    true);
 
             if (!current_r.is_valid_addition_for_load(input,
                                                       current_job.pickup,
@@ -331,7 +334,8 @@ Eval basic(const Input& input,
                                                     vehicle,
                                                     current_r.route,
                                                     pickup_r,
-                                                    pickup_r + 1);
+                                                    pickup_r + 1,
+                                                    true);
               } else {
                 current_eval = p_add + d_adds[delivery_r];
               }
@@ -687,7 +691,8 @@ Eval dynamic_vehicle_choice(const Input& input,
                                                            job_rank,
                                                            vehicle,
                                                            current_r.route,
-                                                           r);
+                                                           r,
+                                                           true);
 
             double current_cost =
               static_cast<double>(current_eval.cost) -
@@ -722,7 +727,8 @@ Eval dynamic_vehicle_choice(const Input& input,
                                                   job_rank + 1,
                                                   vehicle,
                                                   current_r.route,
-                                                  d_rank);
+                                                  d_rank,
+                                                  true);
             valid_delivery_insertions[d_rank] =
               current_r.is_valid_addition_for_tw_without_max_load(input,
                                                                   job_rank + 1,
@@ -734,7 +740,8 @@ Eval dynamic_vehicle_choice(const Input& input,
                                                     job_rank,
                                                     vehicle,
                                                     current_r.route,
-                                                    pickup_r);
+                                                    pickup_r,
+                                                    true);
 
             if (!current_r.is_valid_addition_for_load(input,
                                                       current_job.pickup,
@@ -777,7 +784,8 @@ Eval dynamic_vehicle_choice(const Input& input,
                                                     vehicle,
                                                     current_r.route,
                                                     pickup_r,
-                                                    pickup_r + 1);
+                                                    pickup_r + 1,
+                                                    true);
               } else {
                 current_eval = p_add + d_adds[delivery_r];
               }
