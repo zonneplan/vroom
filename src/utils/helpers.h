@@ -56,7 +56,8 @@ inline Eval addition_cost(const Input& input,
                           Index job_rank,
                           const Vehicle& v,
                           const std::vector<Index>& route,
-                          Index rank) {
+                          Index rank,
+                          bool include_service = false) {
   assert(rank <= route.size());
 
   Index job_index = input.jobs[job_rank].index();
@@ -100,12 +101,14 @@ inline Eval addition_cost(const Input& input,
     }
   }
 
-  Duration service_duration = input.jobs[job_rank].service_for_vehicle(v);
+  Eval total_eval = previous_eval + next_eval - old_edge_eval;
 
-  Eval total_eval =
-    previous_eval + next_eval - old_edge_eval +
-    Eval(v.cost_wrapper.get_discrete_duration_cost_factor() * service_duration,
-         service_duration);
+  if (include_service) {
+    Duration service_duration = input.jobs[job_rank].service_for_vehicle(v);
+    total_eval += Eval(v.cost_wrapper.get_discrete_duration_cost_factor() *
+                         service_duration,
+                       service_duration);
+  }
 
   return total_eval;
 }
@@ -119,11 +122,13 @@ inline Eval addition_cost(const Input& input,
                           const Vehicle& v,
                           const std::vector<Index>& route,
                           Index pickup_rank,
-                          Index delivery_rank) {
+                          Index delivery_rank,
+                          bool include_service = false) {
   assert(pickup_rank < delivery_rank && delivery_rank <= route.size() + 1);
 
   // Start with pickup eval.
-  auto eval = addition_cost(input, job_rank, v, route, pickup_rank);
+  auto eval =
+    addition_cost(input, job_rank, v, route, pickup_rank, include_service);
 
   if (delivery_rank == pickup_rank + 1) {
     // Delivery is inserted just after pickup.
@@ -152,7 +157,12 @@ inline Eval addition_cost(const Input& input,
   } else {
     // Delivery is further away so edges sets for pickup and delivery
     // addition are disjoint.
-    eval += addition_cost(input, job_rank + 1, v, route, delivery_rank - 1);
+    eval += addition_cost(input,
+                          job_rank + 1,
+                          v,
+                          route,
+                          delivery_rank - 1,
+                          include_service);
   }
 
   return eval;
