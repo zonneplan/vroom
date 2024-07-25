@@ -504,7 +504,7 @@ Route format_route(const Input& input,
                    [&](const auto& tw) { return tw.start <= candidate_start; });
     assert(j_tw != previous_job.tws.rend());
 
-    step_start = std::min(candidate_start, j_tw->end);
+    step_start = std::min(candidate_start, j_tw->end); //
     if (step_start < candidate_start) {
       backward_wt += (candidate_start - step_start);
     }
@@ -722,7 +722,7 @@ Route format_route(const Input& input,
 
     const auto j_tw =
       std::ranges::find_if(current_job.tws, [&](const auto& tw) {
-        return step_start <= tw.end;
+        return step_start <= tw.end; //
       });
     assert(j_tw != current_job.tws.end());
 

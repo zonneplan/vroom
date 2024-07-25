@@ -67,7 +67,7 @@ bool Job::is_valid_start(Duration time) const {
   bool valid = false;
 
   for (const auto& tw : tws) {
-    if (tw.contains(time)) {
+    if (tw.contains(time)) { //
       valid = true;
       break;
     }

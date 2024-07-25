@@ -190,7 +190,7 @@ void TWRoute::fwd_update_earliest_from(const Input& input, Index rank) {
     current_earliest += previous_action_time + remaining_travel_time;
 
     const auto j_tw = std::ranges::find_if(next_j.tws, [&](const auto& tw) {
-      return current_earliest <= tw.end;
+      return current_earliest <= tw.end; //
     });
     assert(j_tw != next_j.tws.end());
 
@@ -313,7 +313,7 @@ void TWRoute::bwd_update_latest_from(const Input& input, Index rank) {
                    [&](const auto& tw) { return tw.start <= current_latest; });
     assert(j_tw != previous_j.tws.rend());
 
-    current_latest = std::min(current_latest, j_tw->end);
+    current_latest = std::min(current_latest, j_tw->end); //
 
     assert(earliest[next_i - 1] <= current_latest);
     if (current_latest == latest[next_i - 1]) {
@@ -409,7 +409,7 @@ void TWRoute::update_last_latest_date(const Input& input) {
     });
   assert(j_tw != j.tws.rend());
 
-  latest.back() = std::min(next.latest, j_tw->end);
+  latest.back() = std::min(next.latest, j_tw->end); //
 }
 
 void TWRoute::fwd_update_action_time_from(const Input& input, Index rank) {
@@ -510,7 +510,7 @@ OrderChoice::OrderChoice(const Input& input,
     j_tw(std::ranges::find_if(input.jobs[job_rank].tws,
                               [&](const auto& tw) {
                                 return previous.earliest + previous.travel <=
-                                       tw.end;
+                                       tw.end; //
                               })),
     b_tw(std::ranges::find_if(b.tws, [&](const auto& tw) {
       return previous.earliest <= tw.end;
@@ -545,7 +545,7 @@ OrderChoice TWRoute::order_choice(const Input& input,
   Duration job_then_break_margin = 0;
 
   const auto new_b_tw = std::ranges::find_if(b.tws, [&](const auto& tw) {
-    return earliest_job_end <= tw.end;
+    return earliest_job_end <= tw.end; //
   });
   if (new_b_tw == b.tws.end()) {
     // Break does not fit after job due to its time windows. Only
@@ -607,7 +607,7 @@ OrderChoice TWRoute::order_choice(const Input& input,
   earliest_job_start += b.service + travel_after_break;
 
   const auto new_j_tw = std::ranges::find_if(j.tws, [&](const auto& tw) {
-    return earliest_job_start <= tw.end;
+    return earliest_job_start <= tw.end; //
   });
 
   if (new_j_tw == j.tws.end()) {
@@ -647,7 +647,7 @@ OrderChoice TWRoute::order_choice(const Input& input,
     if (const auto pb_d_tw = std::ranges::find_if(matching_d.tws,
                                                   [&](const auto& tw) {
                                                     return pb_d_candidate <=
-                                                           tw.end;
+                                                           tw.end; //
                                                   });
         pb_d_tw != matching_d.tws.end() &&
         (!check_max_load || b.is_valid_for_load(current_load + j.pickup))) {
@@ -662,7 +662,7 @@ OrderChoice TWRoute::order_choice(const Input& input,
     if (const auto d_tw = std::ranges::find_if(matching_d.tws,
                                                [&](const auto& tw) {
                                                  return delivery_candidate <=
-                                                        tw.end;
+                                                        tw.end; //
                                                });
         d_tw != matching_d.tws.end()) {
       const auto matching_d_action_time =
@@ -700,7 +700,7 @@ OrderChoice TWRoute::order_choice(const Input& input,
     // on earliest deadline, except for deliveries. If a delivery
     // without TW constraint is postponed, it can introduce arbitrary
     // waiting time between zero max_load breaks.
-    if (j.type == JOB_TYPE::DELIVERY || oc.j_tw->end <= oc.b_tw->end) {
+    if (j.type == JOB_TYPE::DELIVERY || oc.j_tw->end <= oc.b_tw->end) { //
       oc.add_job_first = true;
     } else {
       oc.add_break_first = true;
