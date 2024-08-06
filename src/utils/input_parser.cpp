@@ -38,18 +38,6 @@ inline std::string get_string(const rapidjson::Value& object, const char* key) {
   return value;
 }
 
-inline std::optional<std::string>
-get_optional_string(const rapidjson::Value& object, const char* key) {
-  std::optional<std::string> value;
-  if (object.HasMember(key)) {
-    if (!object[key].IsString()) {
-      throw InputException("Invalid " + std::string(key) + " value.");
-    }
-    value = object[key].GetString();
-  }
-  return value;
-}
-
 inline double get_double(const rapidjson::Value& object, const char* key) {
   double value = 1.;
   if (object.HasMember(key)) {
@@ -118,30 +106,39 @@ inline UserDuration get_duration(const rapidjson::Value& object,
   return duration;
 }
 
-inline UserDurationMap get_duration_map(const rapidjson::Value& object,
-                                        const char* key) {
-  UserDurationMap durations;
+inline UserDurationList get_duration_list(const rapidjson::Value& object,
+                                          const char* key) {
+  UserDurationList durations;
 
   if (!object.HasMember(key)) {
+    durations.reserve(1);
+    durations.push_back(0);
+
     return durations;
   }
 
-  if (!object[key].IsObject()) {
-    throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+  if (object[key].IsUint()) {
+    durations.reserve(1);
+    durations.push_back(object[key].GetUint());
+    return durations;
   }
 
-  const auto& durationObject = object[key].GetObject();
+  if (!object[key].IsArray()) {
+    throw InputException("Invalid " + std::string(key) + " duration.");
+  }
 
-  for (auto& member : durationObject) {
-    if (!member.value.IsUint()) {
-      throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+  if (object[key].Empty()) {
+    throw InputException("Empty " + std::string(key) + " duration.");
+  }
+
+  durations.reserve(object[key].Size());
+
+  for (rapidjson::SizeType i = 0; i < object[key].Size(); ++i) {
+    if (!object[key][i].IsUint()) {
+      throw InputException("Invalid " + std::string(key) + " duration.");
     }
 
-    if (!member.name.IsString()) {
-      throw std::runtime_error("Invalid " + std::string(key) + " duration.");
-    }
-
-    durations[member.name.GetString()] = member.value.GetUint();
+    durations.push_back(object[key][i].GetUint());
   }
 
   return durations;
@@ -466,7 +463,7 @@ inline Vehicle get_vehicle(const rapidjson::Value& json_vehicle,
                  get_string(json_vehicle, "description"),
                  get_vehicle_costs(json_vehicle),
                  get_double(json_vehicle, "speed_factor"),
-                 get_optional_string(json_vehicle, "service_type"),
+                 get_value_for<Index>(json_vehicle, "service_index"),
                  get_value_for<size_t>(json_vehicle, "max_tasks"),
                  get_value_for<UserDuration>(json_vehicle, "max_travel_time"),
                  get_value_for<UserDistance>(json_vehicle, "max_distance"),
@@ -508,8 +505,7 @@ inline Job get_job(const rapidjson::Value& json_job, unsigned amount_size) {
   return Job(json_job["id"].GetUint64(),
              get_task_location(json_job, "job"),
              get_duration(json_job, "setup"),
-             get_duration(json_job, "service"),
-             get_duration_map(json_job, "service_per_vehicle_type"),
+             get_duration_list(json_job, "service"),
              need_amount_compat ? get_amount(json_job, "amount", amount_size)
                                 : get_amount(json_job, "delivery", amount_size),
              get_amount(json_job, "pickup", amount_size),
@@ -630,8 +626,7 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
                  JOB_TYPE::PICKUP,
                  get_task_location(json_pickup, "pickup"),
                  get_duration(json_pickup, "setup"),
-                 get_duration(json_pickup, "service"),
-                 get_duration_map(json_pickup, "service_per_vehicle_type"),
+                 get_duration_list(json_pickup, "service"),
                  amount,
                  skills,
                  priority,
@@ -646,8 +641,7 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
                    JOB_TYPE::DELIVERY,
                    get_task_location(json_delivery, "delivery"),
                    get_duration(json_delivery, "setup"),
-                   get_duration(json_delivery, "service"),
-                   get_duration_map(json_delivery, "service_per_vehicle_type"),
+                   get_duration_list(json_delivery, "service"),
                    amount,
                    skills,
                    priority,
@@ -655,6 +649,30 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
                    get_string(json_delivery, "description"));
 
       input.add_shipment(pickup, delivery);
+    }
+  }
+
+  if (!input.jobs.empty()) {
+    const Index max_service_index =
+      std::accumulate(input.vehicles.begin(),
+                      input.vehicles.end(),
+                      0,
+                      [](Index max, const Vehicle& vehicle) {
+                        return std::max(max, vehicle.service_index);
+                      });
+
+    const size_t min_job_service_size =
+      std::accumulate(input.jobs.begin(),
+                      input.jobs.end(),
+                      std::numeric_limits<size_t>::max(),
+                      [](size_t min, const Job& job) {
+                        return std::min(min, job.service.size());
+                      });
+
+    if (max_service_index >= min_job_service_size) {
+      throw InputException(
+        "The service_index of a vehicle is higher than the number of service "
+        "times for a job.");
     }
   }
 
