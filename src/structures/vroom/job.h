@@ -10,6 +10,7 @@ All rights reserved (see LICENSE).
 
 */
 
+#include <numeric>
 #include <string>
 
 #include "structures/typedefs.h"
@@ -25,8 +26,7 @@ struct Job {
   const Id id;
   const JOB_TYPE type;
   const Duration setup;
-  const Duration service;
-  const DurationMap service_per_vehicle_type;
+  const DurationList service;
   const Amount delivery;
   const Amount pickup;
   const Skills skills;
@@ -38,8 +38,7 @@ struct Job {
   Job(Id id,
       const Location& location,
       UserDuration setup = 0,
-      UserDuration service = 0,
-      UserDurationMap service_per_vehicle_type = {},
+      UserDurationList service = {0},
       Amount delivery = Amount(0),
       Amount pickup = Amount(0),
       Skills skills = Skills(),
@@ -54,8 +53,7 @@ struct Job {
       JOB_TYPE type,
       const Location& location,
       UserDuration setup = 0,
-      UserDuration service = 0,
-      UserDurationMap service_per_vehicle_type = {},
+      UserDurationList service = {0},
       const Amount& amount = Amount(0),
       Skills skills = Skills(),
       Priority priority = 0,
@@ -68,12 +66,7 @@ struct Job {
   }
 
   Duration service_for_vehicle(const Vehicle& vehicle) const {
-    if (vehicle.service_type.has_value()) {
-      auto it = service_per_vehicle_type.find(vehicle.service_type.value());
-      return (it != service_per_vehicle_type.end()) ? it->second : service;
-    }
-
-    return service;
+    return service[vehicle.service_index % service.size()];
   }
 
   bool is_valid_start(Duration time) const;

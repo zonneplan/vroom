@@ -35,7 +35,7 @@ struct VehicleCosts {
                UserCost per_km = DEFAULT_COST_PER_KM)
     : fixed(utils::scale_from_user_cost(fixed)),
       per_hour(static_cast<Cost>(per_hour)),
-      per_km(static_cast<Cost>(per_km)) {};
+      per_km(static_cast<Cost>(per_km)){};
 
   friend bool operator==(const VehicleCosts& lhs, const VehicleCosts& rhs) {
     return lhs.fixed == rhs.fixed && lhs.per_hour == rhs.per_hour &&
@@ -60,7 +60,7 @@ struct Vehicle {
   const std::string description;
   const VehicleCosts costs;
   CostWrapper cost_wrapper;
-  const std::optional<std::string> service_type;
+  const Index service_index;
   size_t max_tasks;
   const Duration max_travel_time;
   const Distance max_distance;
@@ -80,8 +80,7 @@ struct Vehicle {
     std::string description = "",
     const VehicleCosts& costs = VehicleCosts(),
     double speed_factor = 1.,
-    const std::optional<std::string>& service_type =
-      std::optional<std::string>(),
+    const std::optional<Index>& service_index = std::optional<Index>(),
     const std::optional<size_t>& max_tasks = std::optional<size_t>(),
     const std::optional<UserDuration>& max_travel_time =
       std::optional<UserDuration>(),

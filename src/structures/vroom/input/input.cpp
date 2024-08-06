@@ -688,17 +688,7 @@ void Input::set_vehicles_max_tasks() {
 
     struct JobTimeList {
       Index rank;
-      Duration action;
-      DurationMap actions;
-
-      Duration service_for_vehicle(const Vehicle& vehicle) const {
-        if (vehicle.service_type.has_value()) {
-          auto it = actions.find(vehicle.service_type.value());
-          return (it != actions.end()) ? it->second : action;
-        }
-
-        return action;
-      }
+      DurationList actions;
     };
 
     std::vector<JobTimeList> job_time_lists(jobs.size());
@@ -706,14 +696,14 @@ void Input::set_vehicles_max_tasks() {
       const Duration setup =
         (is_used_several_times(jobs[j].location) ? 0 : jobs[j].setup);
 
-      DurationMap actions;
-      Duration action = setup + jobs[j].service;
+      DurationList actions;
+      actions.reserve(jobs[j].service.size());
 
-      for (const auto& [task, duration] : jobs[j].service_per_vehicle_type) {
-        actions[task] = setup + duration;
+      for (Duration duration : jobs[j].service) {
+        actions.push_back(setup + duration);
       }
 
-      job_time_lists[j] = {j, action, actions};
+      job_time_lists[j] = {j, actions};
     }
 
     for (Index v = 0; v < vehicles.size(); ++v) {
@@ -723,7 +713,7 @@ void Input::set_vehicles_max_tasks() {
       job_times.reserve(job_time_lists.size());
 
       for (const JobTimeList& job_time_list : job_time_lists) {
-        Duration action = job_time_list.service_for_vehicle(vehicle);
+        Duration action = job_time_list.actions[vehicle.service_index];
         job_times.push_back({job_time_list.rank, action});
       }
 

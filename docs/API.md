@@ -6,14 +6,12 @@
 This file describes the `vroom` API.
 
 Contents:
-
 - [Solving mode](#solving-mode)
 - [Input format](#input)
 - [Output format](#output)
 - [Examples](#examples)
 
 **Notes**:
-
 - the expected order for all coordinates arrays is `[lon, lat]`
 - all timings are in seconds
 - all distances are in meters
@@ -43,33 +41,32 @@ and reporting all constraint violations.
 The problem description is read from standard input or from a file
 (using `-i`) and should be valid `json` formatted as follow.
 
-| Key                       | Description                                                      |
-| ------------------------- | ---------------------------------------------------------------- |
-| [`jobs`](#jobs)           | array of `job` objects describing the places to visit            |
-| [`shipments`](#shipments) | array of `shipment` objects describing pickup and delivery tasks |
-| [`vehicles`](#vehicles)   | array of `vehicle` objects describing the available vehicles     |
-| [[`matrices`](#matrices)] | optional description of per-profile custom matrices              |
-| ~~[`matrix`]~~            | optional two-dimensional array describing a custom matrix        |
+| Key         | Description |
+|-----------|-----------|
+| [`jobs`](#jobs) |  array of `job` objects describing the places to visit |
+| [`shipments`](#shipments) |  array of `shipment` objects describing pickup and delivery tasks |
+| [`vehicles`](#vehicles) |  array of `vehicle` objects describing the available vehicles |
+| [[`matrices`](#matrices)] | optional description of per-profile custom matrices |
+| ~~[`matrix`]~~ | optional two-dimensional array describing a custom matrix |
 
 ## Jobs
 
 A `job` object has the following properties:
 
-| Key                          | Description                                                                                                                                                          |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                         | integer                                                                                                                                                              |
-| [`description`]              | a string describing this job                                                                                                                                         |
-| [`location`]                 | coordinates array                                                                                                                                                    |
-| [`location_index`]           | index of relevant row and column in custom matrices                                                                                                                  |
-| [`setup`]                    | job setup duration (defaults to 0)                                                                                                                                   |
-| [`service`]                  | job service duration (defaults to 0)                                                                                                                                 |
-| [`service_per_vehicle_type`] | object of the job service duration (unsigned integer value) per vehicle type (string key) (defaults to `service` when the key `vehicle.service_type` is not present) |
-| ~~[`amount`]~~               | ~~an array of integers describing multidimensional quantities~~                                                                                                      |
-| [`delivery`]                 | an array of integers describing multidimensional quantities for delivery                                                                                             |
-| [`pickup`]                   | an array of integers describing multidimensional quantities for pickup                                                                                               |
-| [`skills`]                   | an array of integers defining mandatory skills                                                                                                                       |
-| [`priority`]                 | an integer in the `[0, 100]` range describing priority level (defaults to 0)                                                                                         |
-| [`time_windows`]             | an array of `time_window` objects describing valid slots for job service start                                                                                       |
+| Key         | Description |
+| ----------- | ----------- |
+| `id` | integer |
+| [`description`] | a string describing this job |
+| [`location`] | coordinates array |
+| [`location_index`] | index of relevant row and column in custom matrices |
+| [`setup`] | job setup duration (defaults to 0) |
+| [`service`] | job service duration (defaults to 0) |
+| ~~[`amount`]~~ | ~~an array of integers describing multidimensional quantities~~ |
+| [`delivery`] | an array of integers describing multidimensional quantities for delivery |
+| [`pickup`] | an array of integers describing multidimensional quantities for pickup |
+| [`skills`] | an array of integers defining mandatory skills |
+| [`priority`] | an integer in the `[0, 100]` range describing priority level (defaults to 0) |
+| [`time_windows`] | an array of `time_window` objects describing valid slots for job service start |
 
 An error is reported if two `job` objects have the same `id`.
 
@@ -77,25 +74,25 @@ An error is reported if two `job` objects have the same `id`.
 
 A `shipment` object has the following properties:
 
-| Key          | Description                                                                  |
-| ------------ | ---------------------------------------------------------------------------- |
-| `pickup`     | a `shipment_step` object describing pickup                                   |
-| `delivery`   | a `shipment_step` object describing delivery                                 |
-| [`amount`]   | an array of integers describing multidimensional quantities                  |
-| [`skills`]   | an array of integers defining mandatory skills                               |
+| Key         | Description |
+| ----------- | ----------- |
+| `pickup` | a `shipment_step` object describing pickup |
+| `delivery` | a `shipment_step` object describing delivery |
+| [`amount`] | an array of integers describing multidimensional quantities |
+| [`skills`] | an array of integers defining mandatory skills |
 | [`priority`] | an integer in the `[0, 100]` range describing priority level (defaults to 0) |
 
 A `shipment_step` is similar to a `job` object (expect for shared keys already present in `shipment`):
 
-| Key                | Description                                                                     |
-| ------------------ | ------------------------------------------------------------------------------- |
-| `id`               | integer                                                                         |
-| [`description`]    | a string describing this step                                                   |
-| [`location`]       | coordinates array                                                               |
-| [`location_index`] | index of relevant row and column in custom matrices                             |
-| [`setup`]          | task setup duration (defaults to 0)                                             |
-| [`service`]        | task service duration (defaults to 0)                                           |
-| [`time_windows`]   | an array of `time_window` objects describing valid slots for task service start |
+| Key         | Description |
+| ----------- | ----------- |
+| `id` | integer |
+| [`description`] | a string describing this step |
+| [`location`] | coordinates array |
+| [`location_index`] | index of relevant row and column in custom matrices |
+| [`setup`] | task setup duration (defaults to 0) |
+| [`service`] | task service duration (defaults to 0) |
+| [`time_windows`] | an array of `time_window` objects describing valid slots for task service start |
 
 An error is reported if two `delivery` (resp. `pickup`) objects have the same `id`.
 
@@ -103,34 +100,33 @@ An error is reported if two `delivery` (resp. `pickup`) objects have the same `i
 
 A `vehicle` object has the following properties:
 
-| Key                 | Description                                                                                                                                                                |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                | integer                                                                                                                                                                    |
-| [`profile`]         | routing profile (defaults to `car`)                                                                                                                                        |
-| [`description`]     | a string describing this vehicle                                                                                                                                           |
-| [`start`]           | coordinates array                                                                                                                                                          |
-| [`start_index`]     | index of relevant row and column in custom matrices                                                                                                                        |
-| [`end`]             | coordinates array                                                                                                                                                          |
-| [`end_index`]       | index of relevant row and column in custom matrices                                                                                                                        |
-| [`capacity`]        | an array of integers describing multidimensional quantities                                                                                                                |
-| [`costs`]           | a `cost` object defining costs for this vehicle                                                                                                                            |
-| [`skills`]          | an array of integers defining skills                                                                                                                                       |
-| [`service_type`]    | an identifier for which service to pick from the `job.service_per_vehicle_type` object                                                                                     |
-| [`time_windows`]    | an array of `time_window` objects describing working hours                                                                                                                 |
-| [`breaks`]          | an array of `break` objects                                                                                                                                                |
-| [`speed_factor`]    | a double value in the range `(0, 5]` used to scale **all** vehicle travel times (defaults to 1.), the respected precision is limited to two digits after the decimal point |
-| [`max_tasks`]       | an integer defining the maximum number of tasks in a route for this vehicle                                                                                                |
-| [`max_travel_time`] | an integer defining the maximum travel time for this vehicle                                                                                                               |
-| [`max_distance`]    | an integer defining the maximum distance for this vehicle                                                                                                                  |
-| [`steps`]           | an array of `vehicle_step` objects describing a custom route for this vehicle                                                                                              |
+| Key         | Description |
+| ----------- | ----------- |
+| `id` | integer |
+| [`profile`] | routing profile (defaults to `car`) |
+| [`description`] | a string describing this vehicle |
+| [`start`] | coordinates array |
+| [`start_index`] | index of relevant row and column in custom matrices |
+| [`end`] | coordinates array |
+| [`end_index`] | index of relevant row and column in custom matrices |
+| [`capacity`] | an array of integers describing multidimensional quantities |
+| [`costs`] | a `cost` object defining costs for this vehicle |
+| [`skills`] | an array of integers defining skills |
+| [`time_window`] | a `time_window` object describing working hours |
+| [`breaks`] | an array of `break` objects |
+| [`speed_factor`] | a double value in the range `(0, 5]` used to scale **all** vehicle travel times (defaults to 1.), the respected precision is limited to two digits after the decimal point |
+| [`max_tasks`] | an integer defining the maximum number of tasks in a route for this vehicle |
+| [`max_travel_time`] | an integer defining the maximum travel time for this vehicle |
+| [`max_distance`] | an integer defining the maximum distance for this vehicle |
+| [`steps`] | an array of `vehicle_step` objects describing a custom route for this vehicle |
 
 A `cost` object has the following properties:
 
-| Key          | Description                                                                                  |
-| ------------ | -------------------------------------------------------------------------------------------- |
-| [`fixed`]    | integer defining the cost of using this vehicle in the solution (defaults to `0`)            |
+| Key         | Description |
+| ----------- | ----------- |
+| [`fixed`] | integer defining the cost of using this vehicle in the solution (defaults to `0`) |
 | [`per_hour`] | integer defining the cost for one hour of travel time with this vehicle (defaults to `3600`) |
-| [`per_km`]   | integer defining the cost for one km of travel time with this vehicle (defaults to `0`)      |
+| [`per_km`] | integer defining the cost for one km of travel time with this vehicle (defaults to `0`) |
 
 Using a non-default `per-hour` value means defining travel costs based
 on travel times with a multiplicative factor. So in particular
@@ -139,25 +135,25 @@ will raise an error.
 
 A `break` object has the following properties:
 
-| Key              | Description                                                                              |
-| ---------------- | ---------------------------------------------------------------------------------------- |
-| `id`             | integer                                                                                  |
-| [`time_windows`] | an array of `time_window` objects describing valid slots for break start                 |
-| [`service`]      | break duration (defaults to 0)                                                           |
-| [`description`]  | a string describing this break                                                           |
-| [`max_load`]     | an array of integers describing the maximum vehicle load for which this break can happen |
+| Key         | Description |
+| ----------- | ----------- |
+| `id` | integer |
+| [`time_windows`] | an array of `time_window` objects describing valid slots for break start |
+| [`service`] | break duration (defaults to 0) |
+| [`description`] | a string describing this break |
+| [`max_load`] | an array of integers describing the maximum vehicle load for which this break can happen |
 
 An error is reported if two `break` objects have the same `id` for the same vehicle.
 
 A `vehicle_step` object has the following properties:
 
-| Key                | Description                                                                                           |
-| ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `type`             | a string (either `start`, `job`, `pickup`, `delivery`, `break` or `end`)                              |
-| [`id`]             | id of the task to be performed at this step if `type` value is `job`, `pickup`, `delivery` or `break` |
-| [`service_at`]     | hard constraint on service time                                                                       |
-| [`service_after`]  | hard constraint on service time lower bound                                                           |
-| [`service_before`] | hard constraint on service time upper bound                                                           |
+| Key         | Description |
+| ----------- | ----------- |
+| `type` | a string (either `start`, `job`, `pickup`, `delivery`, `break` or `end`) |
+| [`id`] | id of the task to be performed at this step if `type` value is `job`, `pickup`, `delivery` or `break` |
+| [`service_at`] | hard constraint on service time |
+| [`service_after`] | hard constraint on service time lower bound |
+| [`service_before`] | hard constraint on service time upper bound |
 
 ## Notes
 
@@ -231,8 +227,8 @@ included in the solution over lower-priority tasks.
 
 ### Task setup times
 
-Setup times serve as a mean to describe the time it takes to _get
-started_ for a task at a given location. This models a duration that
+Setup times serve as a mean to describe the time it takes to *get
+started* for a task at a given location. This models a duration that
 should not be re-applied for other tasks following at the same
 place. So the total "action time" for a task is `setup + service` upon
 arriving at a new location or `service` only if performing a new task
@@ -271,7 +267,6 @@ quality is thus obviously expected to be highly dependent on the
 user-defined starting point.
 
 In that context:
-
 - only steps with `type=job`, `pickup` or `delivery` are used to
   decide initial routes ordering
 - `service_*` keys are not used
@@ -319,105 +314,104 @@ provided with the `*_index` keys are used during optimization.
 The computed solution is written as `json` on standard output or a file
 (using `-o`), formatted as follow.
 
-| Key                   | Description                                                                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `code`                | status code                                                                                                                           |
-| `error`               | error message (present iff `code` is different from `0`)                                                                              |
-| [`summary`](#summary) | object summarizing solution indicators                                                                                                |
-| `unassigned`          | array of objects describing unassigned tasks with their `id`, `type`, and if provided, `description`, `location` and `location_index` |
-| [`routes`](#routes)   | array of `route` objects                                                                                                              |
+| Key         | Description |
+| ----------- | ----------- |
+| `code` | status code |
+| `error` | error message (present iff `code` is different from `0`) |
+| [`summary`](#summary) | object summarizing solution indicators |
+| `unassigned` | array of objects describing unassigned tasks with their `id`, `type`, and if provided, `description`, `location` and `location_index` |
+| [`routes`](#routes) | array of `route` objects |
 
 ## Code
 
 Possible values for the status code are:
 
-| Value | Status          |
-| ----- | --------------- |
-| `0`   | no error raised |
-| `1`   | internal error  |
-| `2`   | input error     |
-| `3`   | routing error   |
+| Value         | Status |
+| ------------- | ----------- |
+| `0` | no error raised |
+| `1` | internal error |
+| `2` | input error |
+| `3` | routing error |
 
 ## Summary
 
 The `summary` object has the following properties:
 
-| Key            | Description                                 |
-| -------------- | ------------------------------------------- |
-| `cost`         | total cost for all routes                   |
-| `routes`       | number of routes in the solution            |
-| `unassigned`   | number of tasks that could not be served    |
-| `setup`        | total setup time for all routes             |
-| `service`      | total service time for all routes           |
-| `duration`     | total travel time for all routes            |
-| `waiting_time` | total waiting time for all routes           |
-| `priority`     | total priority sum for all assigned tasks   |
-| `violations`   | array of `violation` objects for all routes |
-| ~~[`amount`]~~ | ~~total amount for all routes~~             |
-| [`delivery`]   | total delivery for all routes               |
-| [`pickup`]     | total pickup for all routes                 |
-| [`distance`]\* | total distance for all routes               |
+| Key         | Description |
+| ----------- | ----------- |
+| `cost` | total cost for all routes |
+| `routes` | number of routes in the solution |
+| `unassigned` | number of tasks that could not be served |
+| `setup` | total setup time for all routes |
+| `service` | total service time for all routes |
+| `duration` | total travel time for all routes |
+| `waiting_time` | total waiting time for all routes |
+| `priority` | total priority sum for all assigned tasks |
+| `violations` | array of `violation` objects for all routes |
+| ~~[`amount`]~~ | ~~total amount for all routes~~ |
+| [`delivery`] | total delivery for all routes |
+| [`pickup`] | total pickup for all routes |
+| [`distance`]* | total distance for all routes |
 
-\*: provided when using the `-g` flag.
+*: provided when using the `-g` flag.
 
 ## Routes
 
 A `route` object has the following properties:
 
-| Key               | Description                                 |
-| ----------------- | ------------------------------------------- |
-| `vehicle`         | id of the vehicle assigned to this route    |
-| [`steps`](#steps) | array of `step` objects                     |
-| `cost`            | cost for this route                         |
-| `setup`           | total setup time for this route             |
-| `service`         | total service time for this route           |
-| `duration`        | total travel time for this route            |
-| `waiting_time`    | total waiting time for this route           |
-| `priority`        | total priority sum for tasks in this route  |
-| `violations`      | array of `violation` objects for this route |
-| ~~[`amount`]~~    | ~~total amount for jobs in this route~~     |
-| [`delivery`]      | total delivery for tasks in this route      |
-| [`pickup`]        | total pickup for tasks in this route        |
-| [`description`]   | vehicle description, if provided in input   |
-| [`geometry`]\*    | polyline encoded route geometry             |
-| [`distance`]\*    | total route distance                        |
+| Key         | Description |
+| ----------- | ----------- |
+| `vehicle` | id of the vehicle assigned to this route |
+| [`steps`](#steps) | array of `step` objects |
+| `cost` | cost for this route |
+| `setup` | total setup time for this route |
+| `service` | total service time for this route |
+| `duration` | total travel time for this route |
+| `waiting_time` | total waiting time for this route |
+| `priority` | total priority sum for tasks in this route |
+| `violations` | array of `violation` objects for this route |
+| ~~[`amount`]~~ | ~~total amount for jobs in this route~~ |
+| [`delivery`] | total delivery for tasks in this route |
+| [`pickup`] | total pickup for tasks in this route |
+| [`description`] | vehicle description, if provided in input |
+| [`geometry`]* | polyline encoded route geometry |
+| [`distance`]* | total route distance |
 
-\*: provided when using the `-g` flag.
+*: provided when using the `-g` flag.
 
 ### Steps
 
 A `step` object has the following properties:
 
-| Key                | Description                                                                                                    |
-| ------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `type`             | a string (either `start`, `job`, `pickup`, `delivery`, `break` or `end`)                                       |
-| `arrival`          | estimated time of arrival at this step                                                                         |
-| `duration`         | cumulated travel time upon arrival at this step                                                                |
-| `setup`            | setup time at this step                                                                                        |
-| `service`          | service time at this step                                                                                      |
-| `waiting_time`     | waiting time upon arrival at this step                                                                         |
-| `violations`       | array of `violation` objects for this step                                                                     |
-| [`description`]    | step description, if provided in input                                                                         |
-| [`location`]       | coordinates array for this step (if provided in input)                                                         |
-| [`location_index`] | index of relevant row and column in custom matrices for this step (if provided in input)                       |
-| [`id`]             | id of the task performed at this step, only provided if `type` value is `job`, `pickup`, `delivery` or `break` |
-| ~~[`job`]~~        | ~~id of the job performed at this step, only provided if `type` value is `job`~~                               |
-| [`load`]           | vehicle load after step completion (with capacity constraints)                                                 |
-| [`distance`]\*     | traveled distance upon arrival at this step                                                                    |
+| Key         | Description |
+| ----------- | ----------- |
+| `type` | a string (either `start`, `job`, `pickup`, `delivery`, `break` or `end`) |
+| `arrival` | estimated time of arrival at this step |
+| `duration` | cumulated travel time upon arrival at this step |
+| `setup` | setup time at this step |
+| `service` | service time at this step |
+| `waiting_time` | waiting time upon arrival at this step |
+| `violations` | array of `violation` objects for this step |
+| [`description`] | step description, if provided in input |
+| [`location`] | coordinates array for this step (if provided in input) |
+| [`location_index`] | index of relevant row and column in custom matrices for this step (if provided in input) |
+| [`id`] | id of the task performed at this step, only provided if `type` value is `job`, `pickup`, `delivery` or `break` |
+| ~~[`job`]~~ | ~~id of the job performed at this step, only provided if `type` value is `job`~~ |
+| [`load`] | vehicle load after step completion (with capacity constraints) |
+| [`distance`]* | traveled distance upon arrival at this step |
 
-\*: provided when using the `-g` flag.
+*: provided when using the `-g` flag.
 
 ### Violation
 
 A `violation` object has the following properties:
 
-| Key          | Description                                                         |
-| ------------ | ------------------------------------------------------------------- |
-| `cause`      | string describing the cause of violation                            |
-| [`duration`] | Earliness (resp. lateness) if `cause` is "lead_time" (resp "delay") |
+| Key         | Description |
+| ----------- | ----------- |
+| `cause` | string describing the cause of violation |
+| [`duration`] |  Earliness (resp. lateness) if `cause` is "lead_time" (resp "delay") |
 
 Possible violation causes are:
-
 - "delay" if actual service start does not meet a task time window and is late on a time window end
 - "lead_time" if actual service start does not meet a task time window and is early on a time window start
 - "load" if the vehicle load goes over its capacity
