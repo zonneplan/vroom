@@ -10,7 +10,6 @@ All rights reserved (see LICENSE).
 
 */
 
-#include <numeric>
 #include <string>
 
 #include "structures/typedefs.h"

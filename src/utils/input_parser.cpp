@@ -12,7 +12,6 @@ All rights reserved (see LICENSE).
 #include "../include/rapidjson/include/rapidjson/document.h"
 #include "../include/rapidjson/include/rapidjson/error/en.h"
 
-#include "utils/helpers.h"
 #include "utils/input_parser.h"
 
 namespace vroom::io {

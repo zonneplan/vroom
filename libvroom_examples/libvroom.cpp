@@ -119,7 +119,7 @@ void run_example_with_osrm() {
   job_pickup[0] = 1;
 
   vroom::UserDuration setup = 0;
-  vroom::UserDurationList service = {5 * 60}; // 5 minutes
+  vroom::UserDuration service = 5 * 60; // 5 minutes
   vehicle_capacity[0] = 4;
 
   // Define vehicle breaks.
@@ -201,6 +201,7 @@ void run_example_with_osrm() {
                     vroom::Location(vroom::Coordinates{2.41808, 49.22619}),
                     setup,
                     service,
+                    {},
                     pd_amount,
                     pd_skills);
 
@@ -209,6 +210,7 @@ void run_example_with_osrm() {
                       vroom::Location(vroom::Coordinates{2.39719, 49.07611}),
                       setup,
                       service,
+                      {},
                       pd_amount,
                       pd_skills);
   problem_instance.add_shipment(pickup, delivery);
