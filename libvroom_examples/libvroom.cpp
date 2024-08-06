@@ -160,6 +160,7 @@ void run_example_with_osrm() {
                     vroom::Location(vroom::Coordinates{1.98935, 48.701}),
                     setup,
                     service,
+                    vroom::UserDurationMap{},
                     job_delivery,
                     job_empty_pickup,
                     vroom::Skills{1}, // skills
@@ -169,6 +170,7 @@ void run_example_with_osrm() {
                     vroom::Location(vroom::Coordinates{2.03655, 48.61128}),
                     setup,
                     service,
+                    vroom::UserDurationMap{},
                     job_empty_delivery,
                     job_pickup,
                     vroom::Skills{1});
@@ -176,6 +178,7 @@ void run_example_with_osrm() {
                     vroom::Location(vroom::Coordinates{2.28325, 48.5958}),
                     setup,
                     service,
+                    vroom::UserDurationMap{},
                     job_delivery,
                     job_empty_pickup,
                     vroom::Skills{14});
@@ -183,6 +186,7 @@ void run_example_with_osrm() {
                     vroom::Location(vroom::Coordinates{2.89357, 48.90736}),
                     setup,
                     service,
+                    vroom::UserDurationMap{},
                     job_delivery,
                     job_empty_pickup,
                     vroom::Skills{14});
@@ -201,7 +205,7 @@ void run_example_with_osrm() {
                     vroom::Location(vroom::Coordinates{2.41808, 49.22619}),
                     setup,
                     service,
-                    {},
+                    vroom::UserDurationMap{},
                     pd_amount,
                     pd_skills);
 
@@ -210,7 +214,7 @@ void run_example_with_osrm() {
                       vroom::Location(vroom::Coordinates{2.39719, 49.07611}),
                       setup,
                       service,
-                      {},
+                      vroom::UserDurationMap{},
                       pd_amount,
                       pd_skills);
   problem_instance.add_shipment(pickup, delivery);
