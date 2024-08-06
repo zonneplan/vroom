@@ -26,7 +26,8 @@ struct Job {
   const Id id;
   const JOB_TYPE type;
   const Duration setup;
-  const DurationList service;
+  const Duration service;
+  const DurationMap service_per_vehicle_type;
   const Amount delivery;
   const Amount pickup;
   const Skills skills;
@@ -38,7 +39,8 @@ struct Job {
   Job(Id id,
       const Location& location,
       UserDuration setup = 0,
-      UserDurationList service = {0},
+      UserDuration service = 0,
+      UserDurationMap service_per_vehicle_type = {},
       Amount delivery = Amount(0),
       Amount pickup = Amount(0),
       Skills skills = Skills(),
@@ -53,7 +55,8 @@ struct Job {
       JOB_TYPE type,
       const Location& location,
       UserDuration setup = 0,
-      UserDurationList service = {0},
+      UserDuration service = 0,
+      UserDurationMap service_per_vehicle_type = {},
       const Amount& amount = Amount(0),
       Skills skills = Skills(),
       Priority priority = 0,
@@ -66,7 +69,12 @@ struct Job {
   }
 
   Duration service_for_vehicle(const Vehicle& vehicle) const {
-    return service[vehicle.service_index % service.size()];
+    if (vehicle.service_type.has_value()) {
+      auto it = service_per_vehicle_type.find(vehicle.service_type.value());
+      return (it != service_per_vehicle_type.end()) ? it->second : service;
+    }
+
+    return service;
   }
 
   bool is_valid_start(Duration time) const;
