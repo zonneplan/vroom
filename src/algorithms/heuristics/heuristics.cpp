@@ -128,8 +128,8 @@ Eval basic(const Input& input,
         }
         if (init == INIT::EARLIEST_DEADLINE) {
           Duration current_deadline =
-            is_pickup ? input.jobs[job_rank + 1].tws.back().end
-                      : current_job.tws.back().end;
+            is_pickup ? input.jobs[job_rank + 1].tws.back().end //
+                      : current_job.tws.back().end;             //
           try_validity |= (current_deadline < earliest_deadline);
         }
         if (init == INIT::FURTHEST) {
@@ -182,8 +182,8 @@ Eval basic(const Input& input,
             break;
           case INIT::EARLIEST_DEADLINE:
             earliest_deadline = is_pickup
-                                  ? input.jobs[job_rank + 1].tws.back().end
-                                  : current_job.tws.back().end;
+                                  ? input.jobs[job_rank + 1].tws.back().end //
+                                  : current_job.tws.back().end;             //
             break;
           case INIT::FURTHEST:
             furthest_cost = evals[job_rank][v_rank].cost;
@@ -577,8 +577,8 @@ Eval dynamic_vehicle_choice(const Input& input,
         }
         if (init == INIT::EARLIEST_DEADLINE) {
           Duration current_deadline =
-            is_pickup ? input.jobs[job_rank + 1].tws.back().end
-                      : current_job.tws.back().end;
+            is_pickup ? input.jobs[job_rank + 1].tws.back().end //
+                      : current_job.tws.back().end;             //
           try_validity |= (current_deadline < earliest_deadline);
         }
         if (init == INIT::FURTHEST) {
@@ -632,8 +632,8 @@ Eval dynamic_vehicle_choice(const Input& input,
             break;
           case INIT::EARLIEST_DEADLINE:
             earliest_deadline = is_pickup
-                                  ? input.jobs[job_rank + 1].tws.back().end
-                                  : current_job.tws.back().end;
+                                  ? input.jobs[job_rank + 1].tws.back().end //
+                                  : current_job.tws.back().end;             //
             break;
           case INIT::FURTHEST:
             furthest_cost = evals[job_rank][v_rank].cost;
