@@ -15,6 +15,7 @@ All rights reserved (see LICENSE).
 #include <chrono>
 #include <limits>
 #include <list>
+#include <map>
 #include <optional>
 #include <string>
 #include <unordered_set>
@@ -34,8 +35,10 @@ using UserCost = uint32_t;
 using Cost = int64_t;
 using UserDuration = uint32_t;
 using UserDurationList = std::vector<UserDuration>;
+using UserDurationMap = std::map<std::string, UserDuration>;
 using Duration = int64_t;
 using DurationList = std::vector<Duration>;
+using DurationMap = std::map<std::string, Duration>;
 using UserDistance = uint32_t;
 using Distance = int64_t;
 using Coordinate = double;
@@ -87,7 +90,6 @@ constexpr unsigned MAX_EXPLORATION_LEVEL = 5;
 constexpr unsigned DEFAULT_EXPLORATION_LEVEL = 5;
 constexpr unsigned DEFAULT_THREADS_NUMBER = 4;
 
-constexpr Index DEFAULT_SERVICE_INDEX = 0;
 constexpr auto DEFAULT_MAX_TASKS = std::numeric_limits<size_t>::max();
 constexpr auto DEFAULT_MAX_TRAVEL_TIME = std::numeric_limits<Duration>::max();
 constexpr auto DEFAULT_MAX_DISTANCE = std::numeric_limits<Distance>::max();
@@ -197,12 +199,11 @@ constexpr inline Duration scale_from_user_duration(UserDuration d) {
   return DURATION_FACTOR * static_cast<Duration>(d);
 }
 
-inline DurationList scale_from_user_duration_list(UserDurationList d) {
-  DurationList scaled;
-  scaled.reserve(d.size());
+inline DurationMap scale_from_user_duration_map(const UserDurationMap& d) {
+  DurationMap scaled;
 
-  for (auto duration : d) {
-    scaled.push_back(DURATION_FACTOR * static_cast<Duration>(duration));
+  for (const auto& [key, duration] : d) {
+    scaled[key] = DURATION_FACTOR * duration;
   }
 
   return scaled;
