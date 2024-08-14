@@ -81,6 +81,25 @@ public:
 
   bool has_pickup_up_to_rank(const Index rank) const;
 
+  const std::size_t
+  task_count_of_type(const Job& job,
+                     const std::vector<vroom::Job>& jobs) const {
+    if (!job.task_type.has_value()) {
+      return 0;
+    }
+
+    std::size_t count = 0;
+
+    for (const Index& job_rank : route) {
+      if (jobs[job_rank].task_type.has_value() &&
+          jobs[job_rank].task_type.value() == job.task_type) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
   const Amount& fwd_peak(Index rank) const {
     return _fwd_peaks[rank];
   }
