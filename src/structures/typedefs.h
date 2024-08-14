@@ -45,6 +45,8 @@ using Coordinate = double;
 using Capacity = int64_t;
 using Skill = uint32_t;
 using Priority = uint32_t;
+using MaxTasks = size_t;
+using MaxTasksMap = std::map<std::string, MaxTasks>;
 
 // Type helpers.
 struct Coordinates {

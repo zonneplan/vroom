@@ -147,6 +147,35 @@ inline UserDurationMap get_duration_map(const rapidjson::Value& object,
   return durations;
 }
 
+inline MaxTasksMap get_max_tasks_map(const rapidjson::Value& object,
+                                        const char* key) {
+  MaxTasksMap max_tasks;
+
+  if (!object.HasMember(key)) {
+    return max_tasks;
+  }
+
+  if (!object[key].IsObject()) {
+    throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+  }
+
+  const auto& durationObject = object[key].GetObject();
+
+  for (auto& member : durationObject) {
+    if (!member.value.IsUint()) {
+      throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+    }
+
+    if (!member.name.IsString()) {
+      throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+    }
+
+    max_tasks[member.name.GetString()] = member.value.GetUint();
+  }
+
+  return max_tasks;
+}
+
 inline Priority get_priority(const rapidjson::Value& object) {
   Priority priority = 0;
   if (object.HasMember("priority")) {
@@ -467,7 +496,8 @@ inline Vehicle get_vehicle(const rapidjson::Value& json_vehicle,
                  get_vehicle_costs(json_vehicle),
                  get_double(json_vehicle, "speed_factor"),
                  get_optional_string(json_vehicle, "service_type"),
-                 get_value_for<size_t>(json_vehicle, "max_tasks"),
+                 get_value_for<MaxTasks>(json_vehicle, "max_tasks"),
+                 get_max_tasks_map(json_vehicle, "max_tasks_per_job_type"),
                  get_value_for<UserDuration>(json_vehicle, "max_travel_time"),
                  get_value_for<UserDistance>(json_vehicle, "max_distance"),
                  get_vehicle_steps(json_vehicle));
@@ -516,7 +546,8 @@ inline Job get_job(const rapidjson::Value& json_job, unsigned amount_size) {
              get_skills(json_job),
              get_priority(json_job),
              get_time_windows(json_job),
-             get_string(json_job, "description"));
+             get_string(json_job, "description"),
+             get_optional_string(json_job, "task_type"));
 }
 
 template <class T> inline Matrix<T> get_matrix(rapidjson::Value& m) {

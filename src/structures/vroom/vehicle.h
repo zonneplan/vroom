@@ -61,7 +61,8 @@ struct Vehicle {
   const VehicleCosts costs;
   CostWrapper cost_wrapper;
   const std::optional<std::string> service_type;
-  size_t max_tasks;
+  MaxTasks max_tasks;
+  const MaxTasksMap max_tasks_per_job_type;
   const Duration max_travel_time;
   const Distance max_distance;
   const bool has_break_max_load;
@@ -82,7 +83,9 @@ struct Vehicle {
     double speed_factor = 1.,
     const std::optional<std::string>& service_type =
       std::optional<std::string>(),
-    const std::optional<size_t>& max_tasks = std::optional<size_t>(),
+    const std::optional<MaxTasks>& max_tasks = std::optional<MaxTasks>(),
+    const std::optional<MaxTasksMap>& max_tasks_per_job_type =
+      std::optional<MaxTasksMap>(),
     const std::optional<UserDuration>& max_travel_time =
       std::optional<UserDuration>(),
     const std::optional<UserDistance>& max_distance =
@@ -132,6 +135,15 @@ struct Vehicle {
   bool ok_for_range_bounds(const Eval& e) const {
     assert(0 <= e.duration && 0 <= e.distance);
     return e.duration <= max_travel_time && e.distance <= max_distance;
+  }
+
+  MaxTasks max_tasks_for(const std::optional<std::string>& task_type) const {
+    if (task_type.has_value()) {
+      auto it = max_tasks_per_job_type.find(task_type.value());
+      return (it != max_tasks_per_job_type.end()) ? it->second : max_tasks;
+    }
+
+    return max_tasks;
   }
 
   bool has_range_bounds() const;
