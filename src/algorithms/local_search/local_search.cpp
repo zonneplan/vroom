@@ -930,6 +930,7 @@ void LocalSearch<Route,
             }
           }
 
+          // TODO Casper: check if this is correct.
           if (s_rank + _sol[target].size() - t_rank > s_v.max_tasks ||
               t_rank + _sol[source].size() - s_rank > t_v.max_tasks) {
             continue;
@@ -1033,6 +1034,7 @@ void LocalSearch<Route,
             continue;
           }
 
+          // TODO Casper: check if this is correct.
           if (s_rank + t_rank + 2 > s_v.max_tasks ||
               (_sol[source].size() - s_rank - 1) +
                   (_sol[target].size() - t_rank - 1) >
@@ -1721,6 +1723,13 @@ void LocalSearch<Route,
 
         if (_sol[source].size() > t_v.max_tasks ||
             _sol[target].size() > s_v.max_tasks) {
+          continue;
+        }
+
+        if (_sol[source].has_exceeded_max_tasks_within_range(t_v,
+                                                             _input.jobs) ||
+            _sol[target].has_exceeded_max_tasks_within_range(s_v,
+                                                             _input.jobs)) {
           continue;
         }
 
