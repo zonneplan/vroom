@@ -72,6 +72,13 @@ compute_best_route_split_choice(const Input& input,
         continue;
       }
 
+      if (source.has_exceeded_max_tasks_within_range(end_v,
+                                                     input.jobs,
+                                                     r,
+                                                     source.route.back())) {
+        continue;
+      }
+
       Eval current_end_eval(end_v.fixed_cost());
       current_end_eval += sol_state.fwd_costs[s_vehicle][v].back() -
                           sol_state.fwd_costs[s_vehicle][v][r];
@@ -140,6 +147,13 @@ compute_best_route_split_choice(const Input& input,
 
       if (sol_state.fwd_skill_rank[s_vehicle][v] < r ||
           !(begin_max_load <= begin_v.capacity) || begin_v.max_tasks < r) {
+        continue;
+      }
+
+      if (source.has_exceeded_max_tasks_within_range(begin_v,
+                                                     input.jobs,
+                                                     source.route.front(),
+                                                     r - 1)) {
         continue;
       }
 
