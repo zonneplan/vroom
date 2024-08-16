@@ -81,9 +81,8 @@ public:
 
   bool has_pickup_up_to_rank(const Index rank) const;
 
-  const std::size_t
-  task_count_of_type(const Job& job,
-                     const std::vector<vroom::Job>& jobs) const {
+  std::size_t task_count_of_type(const Job& job,
+                                 const std::vector<vroom::Job>& jobs) const {
     if (!job.task_type.has_value()) {
       return 0;
     }
@@ -100,7 +99,7 @@ public:
     return count;
   }
 
-  const bool has_exceeded_max_tasks_within_range(
+  bool has_exceeded_max_tasks_within_range(
     const Vehicle& vehicle,
     const std::vector<vroom::Job>& jobs,
     const std::optional<Index> begin = std::optional<Index>(),
