@@ -8,6 +8,7 @@ All rights reserved (see LICENSE).
 */
 
 #include <algorithm>
+#include <iostream>
 #include <set>
 
 #include "algorithms/heuristics/heuristics.h"
@@ -120,6 +121,11 @@ Eval basic(const Input& input,
         if (current_r.size() + addition_to_tasks > vehicle.max_tasks) {
           continue;
         }
+
+        std::cout << "A:"
+                  << current_r.task_count_of_type(current_job, input.jobs)
+                  << "," << vehicle.max_tasks_for(current_job.task_type)
+                  << std::endl;
 
         if (current_r.task_count_of_type(current_job, input.jobs) +
               addition_to_tasks >
@@ -240,6 +246,11 @@ Eval basic(const Input& input,
         if (current_job.type == JOB_TYPE::DELIVERY) {
           continue;
         }
+
+        std::cout << "B:"
+                  << current_r.task_count_of_type(current_job, input.jobs)
+                  << "," << vehicle.max_tasks_for(current_job.task_type)
+                  << std::endl;
 
         if (current_job.type == JOB_TYPE::SINGLE &&
             current_r.size() + 1 <= vehicle.max_tasks &&
@@ -581,6 +592,11 @@ Eval dynamic_vehicle_choice(const Input& input,
           continue;
         }
 
+        std::cout << "C:"
+                  << current_r.task_count_of_type(current_job, input.jobs)
+                  << "," << vehicle.max_tasks_for(current_job.task_type)
+                  << std::endl;
+
         if (current_r.task_count_of_type(current_job, input.jobs) +
               addition_to_tasks >
             vehicle.max_tasks_for(current_job.task_type)) {
@@ -701,6 +717,11 @@ Eval dynamic_vehicle_choice(const Input& input,
         if (current_job.type == JOB_TYPE::DELIVERY) {
           continue;
         }
+
+        std::cout << "D:"
+                  << current_r.task_count_of_type(current_job, input.jobs)
+                  << "," << vehicle.max_tasks_for(current_job.task_type)
+                  << std::endl;
 
         if (current_job.type == JOB_TYPE::SINGLE &&
             current_r.size() + 1 <= vehicle.max_tasks &&
