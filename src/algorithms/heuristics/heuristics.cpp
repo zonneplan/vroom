@@ -8,6 +8,7 @@ All rights reserved (see LICENSE).
 */
 
 #include <algorithm>
+#include <iostream>
 #include <set>
 
 #include "algorithms/heuristics/heuristics.h"
@@ -1015,6 +1016,8 @@ void initial_routes(const Input& input, std::vector<Route>& routes) {
       const Job& job = input.jobs[job_rank];
 
       if (!job.task_type.has_value()) {
+        std::cout << "no value for job with rank " << std::to_string(job_rank)
+                  << std::endl;
         continue;
       }
 
@@ -1028,6 +1031,8 @@ void initial_routes(const Input& input, std::vector<Route>& routes) {
 
       // Increment the task count for the current task type
       task_count[task_type]++;
+      std::cout << "task_count[" << task_type << "] = " << task_count[task_type]
+                << std::endl;
     }
 
     if (!expected_delivery_ranks.empty()) {
