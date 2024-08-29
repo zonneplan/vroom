@@ -99,6 +99,7 @@ public:
     return count;
   }
 
+  // Values for begin and end are inclusive.
   bool has_exceeded_max_tasks_within_range(
     const Vehicle& vehicle,
     const std::vector<vroom::Job>& jobs,
@@ -129,6 +130,7 @@ public:
     return false;
   }
 
+  // Values for begin and end are inclusive.
   MaxTasksMap get_max_tasks_map_within_range(
     const std::vector<vroom::Job>& jobs,
     const std::optional<Index> begin = std::optional<Index>(),

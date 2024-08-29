@@ -941,7 +941,7 @@ void LocalSearch<Route,
                 _input.jobs,
                 _sol[source].get_max_tasks_map_within_range(_input.jobs,
                                                             0,
-                                                            s_rank),
+                                                            s_rank - 1),
                 t_rank)) {
             continue;
           }
@@ -951,7 +951,7 @@ void LocalSearch<Route,
                 _input.jobs,
                 _sol[target].get_max_tasks_map_within_range(_input.jobs,
                                                             0,
-                                                            t_rank),
+                                                            t_rank - 1),
                 s_rank)) {
             continue;
           }
@@ -1066,9 +1066,9 @@ void LocalSearch<Route,
                 _input.jobs,
                 _sol[target].get_max_tasks_map_within_range(_input.jobs,
                                                             0,
-                                                            t_rank + 1),
+                                                            t_rank),
                 0,
-                s_rank + 1)) {
+                s_rank)) {
             continue;
           }
 
@@ -1221,12 +1221,33 @@ void LocalSearch<Route,
             continue;
           }
 
-          if (_sol[target].task_count_of_type(_input.jobs[s_job_rank],
-                                              _input.jobs) +
-                2 >
-              _input.vehicles[target].max_tasks_for(
-                _input.jobs[s_job_rank].task_type)) {
-            continue;
+          if (_input.jobs[s_job_rank].task_type.has_value() &&
+              _input.jobs[s_next_job_rank].task_type.has_value() &&
+              _input.jobs[s_job_rank].task_type ==
+                _input.jobs[s_next_job_rank].task_type) {
+            if (_sol[target].task_count_of_type(_input.jobs[s_job_rank],
+                                                _input.jobs) +
+                  2 >
+                _input.vehicles[target].max_tasks_for(
+                  _input.jobs[s_job_rank].task_type)) {
+              continue;
+            }
+          } else {
+            if (_sol[target].task_count_of_type(_input.jobs[s_job_rank],
+                                                _input.jobs) +
+                  1 >
+                _input.vehicles[target].max_tasks_for(
+                  _input.jobs[s_job_rank].task_type)) {
+              continue;
+            }
+
+            if (_sol[target].task_count_of_type(_input.jobs[s_next_job_rank],
+                                                _input.jobs) +
+                  1 >
+                _input.vehicles[target].max_tasks_for(
+                  _input.jobs[s_next_job_rank].task_type)) {
+              continue;
+            }
           }
 
           if (_input.jobs[s_job_rank].type != JOB_TYPE::SINGLE ||
@@ -1698,12 +1719,33 @@ void LocalSearch<Route,
             continue;
           }
 
-          if (_sol[target].task_count_of_type(_input.jobs[s_p_rank],
-                                              _input.jobs) +
-                2 >
-              _input.vehicles[target].max_tasks_for(
-                _input.jobs[s_p_rank].task_type)) {
-            continue;
+          if (_input.jobs[s_p_rank].task_type.has_value() &&
+              _input.jobs[s_d_rank].task_type.has_value() &&
+              _input.jobs[s_p_rank].task_type ==
+                _input.jobs[s_d_rank].task_type) {
+            if (_sol[target].task_count_of_type(_input.jobs[s_p_rank],
+                                                _input.jobs) +
+                  2 >
+                _input.vehicles[target].max_tasks_for(
+                  _input.jobs[s_p_rank].task_type)) {
+              continue;
+            }
+          } else {
+            if (_sol[target].task_count_of_type(_input.jobs[s_p_rank],
+                                                _input.jobs) +
+                  1 >
+                _input.vehicles[target].max_tasks_for(
+                  _input.jobs[s_p_rank].task_type)) {
+              continue;
+            }
+
+            if (_sol[target].task_count_of_type(_input.jobs[s_d_rank],
+                                                _input.jobs) +
+                  1 >
+                _input.vehicles[target].max_tasks_for(
+                  _input.jobs[s_d_rank].task_type)) {
+              continue;
+            }
           }
 
           if (_sol_state.pd_gains[source][s_p_rank] <=
