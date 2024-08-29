@@ -1278,7 +1278,7 @@ Route choose_ETA(const Input& input,
       if (job.task_type.has_value()) {
         const std::string task_type = job.task_type.value();
 
-        if (task_count[task_type] >= vehicle.max_tasks_for(job.task_type)) {
+        if (task_count[task_type] >= v.max_tasks_for(job.task_type)) {
           current.violations.types.insert(VIOLATION::MAX_TASKS_FOR_TYPE);
           v_types.insert(VIOLATION::MAX_TASKS_FOR_TYPE);
         }
