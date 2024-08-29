@@ -120,7 +120,7 @@ public:
 
       const std::string task_type = job.task_type.value();
 
-      if (task_count[task_type] >= vehicle.max_tasks_for(job.task_type)) {
+      if (task_count[task_type] >= vehicle.max_tasks_for(task_type)) {
         return true;
       }
 

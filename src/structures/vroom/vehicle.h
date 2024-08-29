@@ -20,6 +20,7 @@ All rights reserved (see LICENSE).
 #include "structures/vroom/cost_wrapper.h"
 #include "structures/vroom/eval.h"
 #include "structures/vroom/input/vehicle_step.h"
+#include "structures/vroom/job.h"
 #include "structures/vroom/location.h"
 #include "structures/vroom/time_window.h"
 
