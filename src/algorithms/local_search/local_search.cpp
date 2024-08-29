@@ -7,6 +7,7 @@ All rights reserved (see LICENSE).
 
 */
 
+#include <iostream>
 #include <numeric>
 
 #include "algorithms/local_search/insertion_search.h"
@@ -931,12 +932,14 @@ void LocalSearch<Route,
           }
 
           // TODO Casper: check if this is correct.
-          stdout << "s_rank: " << s_rank << std::endl;
-          stdout << "t_rank: " << t_rank << std::endl;
-          stdout << "s_v.max_tasks: " << s_v.max_tasks << std::endl;
-          stdout << "t_v.max_tasks: " << t_v.max_tasks << std::endl;
-          stdout << "_sol[source].size(): " << _sol[source].size() << std::endl;
-          stdout << "_sol[target].size(): " << _sol[target].size() << std::endl;
+          std::cout << "s_rank: " << s_rank << std::endl;
+          std::cout << "t_rank: " << t_rank << std::endl;
+          std::cout << "s_v.max_tasks: " << s_v.max_tasks << std::endl;
+          std::cout << "t_v.max_tasks: " << t_v.max_tasks << std::endl;
+          std::cout << "_sol[source].size(): " << _sol[source].size()
+                    << std::endl;
+          std::cout << "_sol[target].size(): " << _sol[target].size()
+                    << std::endl;
 
           if (s_rank + _sol[target].size() - t_rank > s_v.max_tasks ||
               t_rank + _sol[source].size() - s_rank > t_v.max_tasks) {
@@ -1042,12 +1045,14 @@ void LocalSearch<Route,
           }
 
           // TODO Casper: check if this is correct.
-          stdout << "s_rank: " << s_rank << std::endl;
-          stdout << "t_rank: " << t_rank << std::endl;
-          stdout << "s_v.max_tasks: " << s_v.max_tasks << std::endl;
-          stdout << "t_v.max_tasks: " << t_v.max_tasks << std::endl;
-          stdout << "_sol[source].size(): " << _sol[source].size() << std::endl;
-          stdout << "_sol[target].size(): " << _sol[target].size() << std::endl;
+          std::cout << "s_rank: " << s_rank << std::endl;
+          std::cout << "t_rank: " << t_rank << std::endl;
+          std::cout << "s_v.max_tasks: " << s_v.max_tasks << std::endl;
+          std::cout << "t_v.max_tasks: " << t_v.max_tasks << std::endl;
+          std::cout << "_sol[source].size(): " << _sol[source].size()
+                    << std::endl;
+          std::cout << "_sol[target].size(): " << _sol[target].size()
+                    << std::endl;
 
           if (s_rank + t_rank + 2 > s_v.max_tasks ||
               (_sol[source].size() - s_rank - 1) +
