@@ -9,7 +9,6 @@ All rights reserved (see LICENSE).
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <numeric>
 
 #include <glpk.h>
@@ -1280,7 +1279,6 @@ Route choose_ETA(const Input& input,
         const std::string task_type = job.task_type.value();
 
         task_count[task_type]++;
-        std::cout << task_type << ": " << task_count[task_type] << std::endl;
 
         if (task_count[task_type] > v.max_tasks_for(task_type)) {
           current.violations.types.insert(VIOLATION::MAX_TASKS_FOR_TYPE);
