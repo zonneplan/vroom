@@ -7,7 +7,6 @@ All rights reserved (see LICENSE).
 
 */
 
-#include <iostream>
 #include <numeric>
 
 #include "algorithms/local_search/insertion_search.h"
