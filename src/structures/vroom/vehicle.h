@@ -146,6 +146,27 @@ struct Vehicle {
     return max_tasks;
   }
 
+  bool
+  has_exceeded_max_tasks_for_jobs(const std::vector<vroom::Job>& jobs) const {
+    MaxTasksMap task_count;
+
+    for (const Job& job : jobs) {
+      if (!job.task_type.has_value()) {
+        continue;
+      }
+
+      const std::string task_type = job.task_type.value();
+
+      if (task_count[task_type] >= max_tasks_for(job.task_type)) {
+        return true;
+      }
+
+      task_count[task_type]++;
+    }
+
+    return false;
+  }
+
   bool has_range_bounds() const;
 
   Index break_rank(Id break_id) const;
