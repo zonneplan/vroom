@@ -102,9 +102,10 @@ public:
   bool has_exceeded_max_tasks_within_range(
     const Vehicle& vehicle,
     const std::vector<vroom::Job>& jobs,
+    const MaxTasksMap& initial_task_count = MaxTasksMap(),
     const std::optional<Index> begin = std::optional<Index>(),
     const std::optional<Index> end = std::optional<Index>()) const {
-    MaxTasksMap task_count;
+    MaxTasksMap task_count = initial_task_count;
 
     const Index begin_value = begin.value_or(route.front());
     const Index end_value = end.value_or(route.back()) + 1;
@@ -126,6 +127,30 @@ public:
     }
 
     return false;
+  }
+
+  MaxTasksMap get_max_tasks_map_within_range(
+    const std::vector<vroom::Job>& jobs,
+    const std::optional<Index> begin = std::optional<Index>(),
+    const std::optional<Index> end = std::optional<Index>()) const {
+    MaxTasksMap task_count;
+
+    const Index begin_value = begin.value_or(route.front());
+    const Index end_value = end.value_or(route.back()) + 1;
+
+    for (Index job_rank = begin_value; job_rank < end_value; ++job_rank) {
+      const Job& job = jobs[job_rank];
+
+      if (!job.task_type.has_value()) {
+        continue;
+      }
+
+      const std::string task_type = job.task_type.value();
+
+      task_count[task_type]++;
+    }
+
+    return task_count;
   }
 
   const Amount& fwd_peak(Index rank) const {

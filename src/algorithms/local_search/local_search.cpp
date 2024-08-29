@@ -931,18 +931,28 @@ void LocalSearch<Route,
             }
           }
 
-          // TODO Casper: check if this is correct.
-          std::cout << "s_rank: " << s_rank << std::endl;
-          std::cout << "t_rank: " << t_rank << std::endl;
-          std::cout << "s_v.max_tasks: " << s_v.max_tasks << std::endl;
-          std::cout << "t_v.max_tasks: " << t_v.max_tasks << std::endl;
-          std::cout << "_sol[source].size(): " << _sol[source].size()
-                    << std::endl;
-          std::cout << "_sol[target].size(): " << _sol[target].size()
-                    << std::endl;
-
           if (s_rank + _sol[target].size() - t_rank > s_v.max_tasks ||
               t_rank + _sol[source].size() - s_rank > t_v.max_tasks) {
+            continue;
+          }
+
+          if (_sol[target].has_exceeded_max_tasks_within_range(
+                s_v,
+                _input.jobs,
+                _sol[source].get_max_tasks_map_within_range(_input.jobs,
+                                                            0,
+                                                            s_rank),
+                t_rank)) {
+            continue;
+          }
+
+          if (_sol[source].has_exceeded_max_tasks_within_range(
+                t_v,
+                _input.jobs,
+                _sol[target].get_max_tasks_map_within_range(_input.jobs,
+                                                            0,
+                                                            t_rank),
+                s_rank)) {
             continue;
           }
 
@@ -1044,20 +1054,30 @@ void LocalSearch<Route,
             continue;
           }
 
-          // TODO Casper: check if this is correct.
-          std::cout << "s_rank: " << s_rank << std::endl;
-          std::cout << "t_rank: " << t_rank << std::endl;
-          std::cout << "s_v.max_tasks: " << s_v.max_tasks << std::endl;
-          std::cout << "t_v.max_tasks: " << t_v.max_tasks << std::endl;
-          std::cout << "_sol[source].size(): " << _sol[source].size()
-                    << std::endl;
-          std::cout << "_sol[target].size(): " << _sol[target].size()
-                    << std::endl;
-
           if (s_rank + t_rank + 2 > s_v.max_tasks ||
               (_sol[source].size() - s_rank - 1) +
                   (_sol[target].size() - t_rank - 1) >
                 t_v.max_tasks) {
+            continue;
+          }
+
+          if (_sol[source].has_exceeded_max_tasks_within_range(
+                s_v,
+                _input.jobs,
+                _sol[target].get_max_tasks_map_within_range(_input.jobs,
+                                                            0,
+                                                            t_rank + 1),
+                0,
+                s_rank + 1)) {
+            continue;
+          }
+
+          if (_sol[target].has_exceeded_max_tasks_within_range(
+                t_v,
+                _input.jobs,
+                _sol[source].get_max_tasks_map_within_range(_input.jobs,
+                                                            s_rank + 1),
+                t_rank + 1)) {
             continue;
           }
 

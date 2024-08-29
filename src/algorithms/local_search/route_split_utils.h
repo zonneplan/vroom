@@ -74,6 +74,7 @@ compute_best_route_split_choice(const Input& input,
 
       if (source.has_exceeded_max_tasks_within_range(end_v,
                                                      input.jobs,
+                                                     MaxTasksMap(),
                                                      r,
                                                      source.route.back())) {
         continue;
@@ -152,6 +153,7 @@ compute_best_route_split_choice(const Input& input,
 
       if (source.has_exceeded_max_tasks_within_range(begin_v,
                                                      input.jobs,
+                                                     MaxTasksMap(),
                                                      source.route.front(),
                                                      r - 1)) {
         continue;
