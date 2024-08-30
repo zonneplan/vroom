@@ -465,6 +465,8 @@ void LocalSearch<Route,
 
           if (best_current_priority > 0 &&
               best_priorities[source] <= best_current_priority) {
+            // Check if max_tasks is exceeded
+
 #ifdef LOG_LS_OPERATORS
             ++tried_moves[OperatorName::PriorityReplace];
 #endif
@@ -567,6 +569,9 @@ void LocalSearch<Route,
                   // Same move as with t_rank == s_rank.
                   continue;
                 }
+
+                // Check if max_tasks is exceeded
+
 #ifdef LOG_LS_OPERATORS
                 ++tried_moves[OperatorName::UnassignedExchange];
 #endif
@@ -625,6 +630,8 @@ void LocalSearch<Route,
           continue;
         }
 
+        // Check if max_tasks is exceeded
+
         const auto& job_s_type = _input.jobs[s_job_rank].type;
 
         bool both_s_single =
@@ -668,6 +675,8 @@ void LocalSearch<Route,
               !_input.vehicle_ok_with_job(source, t_next_job_rank)) {
             continue;
           }
+
+          // Check if max_tasks is exceeded
 
           const auto& job_t_type = _input.jobs[t_job_rank].type;
 
@@ -770,6 +779,7 @@ void LocalSearch<Route,
             continue;
           }
 
+          // Check if this is correct
           if (_sol[source].task_count_of_type(_input.jobs[s_job_rank],
                                               _input.jobs) +
                 1 >
@@ -796,6 +806,8 @@ void LocalSearch<Route,
                                             _sol[target].route[t_rank + 1])) {
               continue;
             }
+
+            // Check if max_tasks exceeded should be checked here
 
             const auto t_job_rank = _sol[target].route[t_rank];
             const auto t_next_job_rank = _sol[target].route[t_rank + 1];
@@ -1306,6 +1318,8 @@ void LocalSearch<Route,
           continue;
         }
 
+        // Check if max_tasks is exceeded, experimental so we won't use it
+
 #ifdef LOG_LS_OPERATORS
         ++tried_moves[OperatorName::TSPFix];
 #endif
@@ -1352,6 +1366,8 @@ void LocalSearch<Route,
               s_rank + 1) {
             continue;
           }
+
+          // Check if max_tasks is exceeded
 
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::IntraExchange];
@@ -1422,6 +1438,8 @@ void LocalSearch<Route,
               s_rank + 2) {
             continue;
           }
+
+          // Check if max_tasks is exceeded
 
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::IntraCrossExchange];
@@ -1495,6 +1513,8 @@ void LocalSearch<Route,
             continue;
           }
 
+          // Check if max_tasks is exceeded
+
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::IntraMixedExchange];
 #endif
@@ -1557,6 +1577,8 @@ void LocalSearch<Route,
             // work.
             break;
           }
+
+          // Check if max_tasks is exceeded
 
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::IntraRelocate];
@@ -1632,6 +1654,8 @@ void LocalSearch<Route,
             break;
           }
 
+          // Check if max_tasks is exceeded
+
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::IntraOrOpt];
 #endif
@@ -1667,6 +1691,8 @@ void LocalSearch<Route,
                                    static_cast<Index>(end_s - 1));
 
         for (unsigned t_rank = s_rank + 2; t_rank < end_t_rank; ++t_rank) {
+          // Check if max_tasks is exceeded
+
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::IntraTwoOpt];
 #endif
@@ -1718,6 +1744,7 @@ void LocalSearch<Route,
             continue;
           }
 
+          // Check if this is correct.
           if (_input.jobs[s_p_rank].task_type.has_value() &&
               _input.jobs[s_d_rank].task_type.has_value() &&
               _input.jobs[s_p_rank].task_type ==
@@ -1857,6 +1884,8 @@ void LocalSearch<Route,
           continue;
         }
 
+        // Check if max_tasks is exceeded
+
 #ifdef LOG_LS_OPERATORS
         ++tried_moves[OperatorName::SwapStar];
 #endif
@@ -1893,6 +1922,8 @@ void LocalSearch<Route,
               _sol[source].size() < 2) {
             continue;
           }
+
+          // Check if max_tasks is exceeded
 
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::RouteSplit];
