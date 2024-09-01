@@ -944,14 +944,14 @@ void LocalSearch<Route,
             continue;
           }
 
-          if ((_sol[target].get_task_count_per_type(_input, 0, s_rank) +
+          if ((_sol[source].get_task_count_per_type(_input, 0, s_rank) +
                _sol[target].get_task_count_per_type(_input, t_rank))
                 .exceeds_for_vehicle(s_v)) {
             continue;
           }
 
           if ((_sol[source].get_task_count_per_type(_input, s_rank) +
-               _sol[source].get_task_count_per_type(_input, 0, t_rank))
+               _sol[target].get_task_count_per_type(_input, 0, t_rank))
                 .exceeds_for_vehicle(t_v)) {
             continue;
           }
@@ -1062,13 +1062,13 @@ void LocalSearch<Route,
           }
 
           if ((_sol[source].get_task_count_per_type(_input, 0, s_rank + 1) +
-               _sol[source].get_task_count_per_type(_input, 0, t_rank + 1))
+               _sol[target].get_task_count_per_type(_input, 0, t_rank + 1))
                 .exceeds_for_vehicle(s_v)) {
             continue;
           }
 
           if ((_sol[target].get_task_count_per_type(_input, t_rank + 1) +
-               _sol[target].get_task_count_per_type(_input, s_rank + 1))
+               _sol[source].get_task_count_per_type(_input, s_rank + 1))
                 .exceeds_for_vehicle(t_v)) {
             continue;
           }
