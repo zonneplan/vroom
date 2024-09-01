@@ -1280,7 +1280,8 @@ Route choose_ETA(const Input& input,
 
         task_count[task_type]++;
 
-        if (task_count[task_type] > v.max_tasks_for(task_type)) {
+        if (task_count[task_type] >= 0 &&
+            (uint64_t)task_count[task_type] > v.max_tasks_for(task_type)) {
           current.violations.types.insert(VIOLATION::MAX_TASKS_FOR_TYPE);
           v_types.insert(VIOLATION::MAX_TASKS_FOR_TYPE);
         }

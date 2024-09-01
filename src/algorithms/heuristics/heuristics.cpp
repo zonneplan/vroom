@@ -1027,7 +1027,9 @@ void initial_routes(const Input& input, std::vector<Route>& routes) {
       // Increment the task count for the current task type
       task_count[task_type]++;
 
-      if (task_count[task_type] > vehicle.max_tasks_for(job.task_type)) {
+      if (task_count[task_type] >= 0 &&
+          (uint64_t)task_count[task_type] >
+            vehicle.max_tasks_for(job.task_type)) {
         throw InputException("Too many tasks of type " + task_type +
                              " for vehicle " + std::to_string(vehicle.id) +
                              ".");
