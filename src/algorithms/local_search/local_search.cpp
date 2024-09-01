@@ -432,6 +432,8 @@ void LocalSearch<Route,
             continue;
           }
 
+          // TODO Casper: PriorityReplace
+
           // Find where to stop when replacing beginning of route.
           const auto fwd_over =
             std::ranges::find_if(_sol_state.fwd_priority[source],
@@ -465,7 +467,6 @@ void LocalSearch<Route,
 
           if (best_current_priority > 0 &&
               best_priorities[source] <= best_current_priority) {
-            // TODO Casper: Check if max_tasks is exceeded, PriorityReplace
 
 #ifdef LOG_LS_OPERATORS
             ++tried_moves[OperatorName::PriorityReplace];
@@ -529,6 +530,14 @@ void LocalSearch<Route,
               continue;
             }
 
+            if (_sol[source]
+                  .get_task_count_per_type(_input)
+                  .sub(current_job)
+                  .add(_input.jobs[u])
+                  .exceeds_for_vehicle(_input.vehicles[source])) {
+              continue;
+            }
+
             const Priority priority_gain = u_priority - current_job.priority;
 
             if (best_priorities[source] <= priority_gain) {
@@ -569,9 +578,6 @@ void LocalSearch<Route,
                   // Same move as with t_rank == s_rank.
                   continue;
                 }
-
-                // TODO Casper: Check if max_tasks is exceeded,
-                // UnassignedExchange
 
 #ifdef LOG_LS_OPERATORS
                 ++tried_moves[OperatorName::UnassignedExchange];
@@ -675,7 +681,25 @@ void LocalSearch<Route,
             continue;
           }
 
-          // TODO Casper: Check if max_tasks is exceeded, CrossExchange
+          if (_sol[source]
+                .get_task_count_per_type(_input)
+                .sub(_input.jobs[s_job_rank])
+                .sub(_input.jobs[s_next_job_rank])
+                .add(_input.jobs[t_job_rank])
+                .add(_input.jobs[t_next_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[source])) {
+            continue;
+          }
+
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .sub(_input.jobs[t_job_rank])
+                .sub(_input.jobs[t_next_job_rank])
+                .add(_input.jobs[s_job_rank])
+                .add(_input.jobs[s_next_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
+          }
 
           const auto& job_t_type = _input.jobs[t_job_rank].type;
 
@@ -778,14 +802,6 @@ void LocalSearch<Route,
             continue;
           }
 
-          // TODO Casper: This is incorrect, MixedExchange
-          if (_sol[source]
-                .get_task_count_per_type(_input)
-                .add(_input.jobs[s_job_rank])
-                .exceeds_for_vehicle(_input.vehicles[source])) {
-            continue;
-          }
-
           const auto& s_delivery = _input.jobs[s_job_rank].delivery;
           const auto& s_pickup = _input.jobs[s_job_rank].pickup;
 
@@ -805,12 +821,27 @@ void LocalSearch<Route,
               continue;
             }
 
-            // TODO Casper: Check if max_tasks exceeded should be checked here,
-            // MixedExchange
-
             const auto t_job_rank = _sol[target].route[t_rank];
             const auto t_next_job_rank = _sol[target].route[t_rank + 1];
             const auto& job_t_type = _input.jobs[t_job_rank].type;
+
+            if (_sol[source]
+                  .get_task_count_per_type(_input)
+                  .sub(_input.jobs[s_job_rank])
+                  .add(_input.jobs[t_job_rank])
+                  .add(_input.jobs[t_next_job_rank])
+                  .exceeds_for_vehicle(_input.vehicles[source])) {
+              continue;
+            }
+
+            if (_sol[target]
+                  .get_task_count_per_type(_input)
+                  .sub(_input.jobs[t_job_rank])
+                  .sub(_input.jobs[t_next_job_rank])
+                  .add(_input.jobs[s_job_rank])
+                  .exceeds_for_vehicle(_input.vehicles[target])) {
+              continue;
+            }
 
             bool both_t_single =
               (job_t_type == JOB_TYPE::SINGLE) &&
@@ -1279,7 +1310,7 @@ void LocalSearch<Route,
           continue;
         }
 
-        // TODO Casper: Check if max_tasks is exceeded, experimental, TSPFix
+        // TODO Casper: TSPFix
 
 #ifdef LOG_LS_OPERATORS
         ++tried_moves[OperatorName::TSPFix];
@@ -1694,7 +1725,7 @@ void LocalSearch<Route,
             continue;
           }
 
-          // TODO Casper: Check if this is correct, PDShift
+          // TODO Casper: PDShift
           if (_sol[target]
                 .get_task_count_per_type(_input)
                 .add(_input.jobs[s_p_rank])
@@ -1805,6 +1836,10 @@ void LocalSearch<Route,
             best_priorities[source] > 0 || best_priorities[target] > 0 ||
             _sol[source].size() == 0 || _sol[target].size() == 0 ||
             !_input.vehicle_ok_with_vehicle(source, target) ||
+            _sol[source].get_task_count_per_type(_input).exceeds_for_vehicle(
+              _input.vehicles[target]) ||
+            _sol[target].get_task_count_per_type(_input).exceeds_for_vehicle(
+              _input.vehicles[source]) ||
             (_input.all_locations_have_coords() &&
              _input.vehicles[source].has_same_profile(
                _input.vehicles[target]) &&
@@ -1812,8 +1847,6 @@ void LocalSearch<Route,
                _sol_state.route_bbox[target]))) {
           continue;
         }
-
-        // TODO Casper: Check if max_tasks is exceeded, SwapStar
 
 #ifdef LOG_LS_OPERATORS
         ++tried_moves[OperatorName::SwapStar];
@@ -1851,8 +1884,6 @@ void LocalSearch<Route,
               _sol[source].size() < 2) {
             continue;
           }
-
-          // TODO Casper: Check if max_tasks is exceeded, RouteSplit
 
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::RouteSplit];
