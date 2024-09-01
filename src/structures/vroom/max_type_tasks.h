@@ -95,9 +95,9 @@ struct MaxTypeTasks {
     return new_max_tasks;
   }
 
-  bool exceeds_for_vehicle(const Vehicle& vehicle) const {
+  bool exceeds_for_vehicle(const Vehicle& vehicle) {
     for (const auto& type : vehicle.max_tasks_per_job_type) {
-      if (max_tasks_per_type.at(type.first) > type.second) {
+      if (max_tasks_per_type[type.first] > type.second) {
         return true;
       }
     }
