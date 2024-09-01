@@ -148,7 +148,7 @@ inline UserDurationMap get_duration_map(const rapidjson::Value& object,
 }
 
 inline MaxTasksMap get_max_tasks_map(const rapidjson::Value& object,
-                                        const char* key) {
+                                     const char* key) {
   MaxTasksMap max_tasks;
 
   if (!object.HasMember(key)) {
@@ -156,21 +156,26 @@ inline MaxTasksMap get_max_tasks_map(const rapidjson::Value& object,
   }
 
   if (!object[key].IsObject()) {
-    throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+    throw std::runtime_error("Invalid " + std::string(key) + " value.");
   }
 
-  const auto& durationObject = object[key].GetObject();
+  const auto& taskObject = object[key].GetObject();
 
-  for (auto& member : durationObject) {
-    if (!member.value.IsUint()) {
-      throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+  for (auto& member : taskObject) {
+    if (!member.value.IsInt64()) {
+      throw std::runtime_error("Invalid " + std::string(key) + " value.");
     }
 
     if (!member.name.IsString()) {
-      throw std::runtime_error("Invalid " + std::string(key) + " duration.");
+      throw std::runtime_error("Invalid " + std::string(key) + " value.");
     }
 
-    max_tasks[member.name.GetString()] = member.value.GetUint();
+    if (member.value.GetInt64() < 0) {
+      throw std::runtime_error("Invalid (negative) " + std::string(key) +
+                               " value.");
+    }
+
+    max_tasks[member.name.GetString()] = member.value.GetInt64();
   }
 
   return max_tasks;
