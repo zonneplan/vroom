@@ -72,11 +72,7 @@ compute_best_route_split_choice(const Input& input,
         continue;
       }
 
-      if (source.has_exceeded_max_tasks_within_range(end_v,
-                                                     input.jobs,
-                                                     MaxTasksMap(),
-                                                     r,
-                                                     source.route.back())) {
+      if (source.get_task_count_per_type(input, r).exceeds_for_vehicle(end_v)) {
         continue;
       }
 
@@ -151,11 +147,8 @@ compute_best_route_split_choice(const Input& input,
         continue;
       }
 
-      if (source.has_exceeded_max_tasks_within_range(begin_v,
-                                                     input.jobs,
-                                                     MaxTasksMap(),
-                                                     source.route.front(),
-                                                     r - 1)) {
+      if (source.get_task_count_per_type(input, 0, r)
+            .exceeds_for_vehicle(begin_v)) {
         continue;
       }
 

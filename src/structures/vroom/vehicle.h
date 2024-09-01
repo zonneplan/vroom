@@ -20,7 +20,6 @@ All rights reserved (see LICENSE).
 #include "structures/vroom/cost_wrapper.h"
 #include "structures/vroom/eval.h"
 #include "structures/vroom/input/vehicle_step.h"
-#include "structures/vroom/job.h"
 #include "structures/vroom/location.h"
 #include "structures/vroom/time_window.h"
 
@@ -145,27 +144,6 @@ struct Vehicle {
     }
 
     return max_tasks;
-  }
-
-  bool
-  has_exceeded_max_tasks_for_jobs(const std::vector<vroom::Job>& jobs) const {
-    MaxTasksMap task_count;
-
-    for (const Job& job : jobs) {
-      if (!job.task_type.has_value()) {
-        continue;
-      }
-
-      const std::string task_type = job.task_type.value();
-
-      if (task_count[task_type] >= max_tasks_for(task_type)) {
-        return true;
-      }
-
-      task_count[task_type]++;
-    }
-
-    return false;
   }
 
   bool has_range_bounds() const;

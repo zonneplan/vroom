@@ -121,9 +121,9 @@ Eval basic(const Input& input,
           continue;
         }
 
-        if (current_r.task_count_of_type(current_job, input.jobs) +
-              addition_to_tasks >
-            vehicle.max_tasks_for(current_job.task_type)) {
+        if (current_r.get_task_count_per_type(input)
+              .add(current_job, addition_to_tasks)
+              .exceeds_for_vehicle(vehicle)) {
           continue;
         }
 
@@ -243,8 +243,9 @@ Eval basic(const Input& input,
 
         if (current_job.type == JOB_TYPE::SINGLE &&
             current_r.size() + 1 <= vehicle.max_tasks &&
-            current_r.task_count_of_type(current_job, input.jobs) + 1 <=
-              vehicle.max_tasks_for(current_job.task_type)) {
+            !current_r.get_task_count_per_type(input)
+               .add(current_job)
+               .exceeds_for_vehicle(vehicle)) {
           for (Index r = 0; r <= current_r.size(); ++r) {
             const auto current_eval = utils::addition_cost(input,
                                                            job_rank,
@@ -275,8 +276,9 @@ Eval basic(const Input& input,
 
         if (current_job.type == JOB_TYPE::PICKUP &&
             current_r.size() + 2 <= vehicle.max_tasks &&
-            current_r.task_count_of_type(current_job, input.jobs) + 2 <=
-              vehicle.max_tasks_for(current_job.task_type)) {
+            !current_r.get_task_count_per_type(input)
+               .add(current_job, 2)
+               .exceeds_for_vehicle(vehicle)) {
           // Pre-compute cost of addition for matching delivery.
           std::vector<Eval> d_adds(current_r.route.size() + 1);
           std::vector<unsigned char> valid_delivery_insertions(
@@ -581,9 +583,9 @@ Eval dynamic_vehicle_choice(const Input& input,
           continue;
         }
 
-        if (current_r.task_count_of_type(current_job, input.jobs) +
-              addition_to_tasks >
-            vehicle.max_tasks_for(current_job.task_type)) {
+        if (current_r.get_task_count_per_type(input)
+              .add(current_job, addition_to_tasks)
+              .exceeds_for_vehicle(vehicle)) {
           continue;
         }
 
@@ -704,8 +706,9 @@ Eval dynamic_vehicle_choice(const Input& input,
 
         if (current_job.type == JOB_TYPE::SINGLE &&
             current_r.size() + 1 <= vehicle.max_tasks &&
-            current_r.task_count_of_type(current_job, input.jobs) + 1 <=
-              vehicle.max_tasks_for(current_job.task_type)) {
+            !current_r.get_task_count_per_type(input)
+               .add(current_job)
+               .exceeds_for_vehicle(vehicle)) {
           for (Index r = 0; r <= current_r.size(); ++r) {
             const auto current_eval = utils::addition_cost(input,
                                                            job_rank,
@@ -736,8 +739,9 @@ Eval dynamic_vehicle_choice(const Input& input,
 
         if (current_job.type == JOB_TYPE::PICKUP &&
             current_r.size() + 2 <= vehicle.max_tasks &&
-            current_r.task_count_of_type(current_job, input.jobs) + 2 <=
-              vehicle.max_tasks_for(current_job.task_type)) {
+            !current_r.get_task_count_per_type(input)
+               .add(current_job, 2)
+               .exceeds_for_vehicle(vehicle)) {
           // Pre-compute cost of addition for matching delivery.
           std::vector<Eval> d_adds(current_r.route.size() + 1);
           std::vector<unsigned char> valid_delivery_insertions(

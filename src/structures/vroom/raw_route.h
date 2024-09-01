@@ -12,6 +12,7 @@ All rights reserved (see LICENSE).
 
 #include "structures/typedefs.h"
 #include "structures/vroom/input/input.h"
+#include "structures/vroom/max_type_tasks.h"
 
 namespace vroom {
 
@@ -81,38 +82,20 @@ public:
 
   bool has_pickup_up_to_rank(const Index rank) const;
 
-  std::size_t task_count_of_type(const Job& job,
-                                 const std::vector<vroom::Job>& jobs) const {
-    if (!job.task_type.has_value()) {
-      return 0;
-    }
-
-    std::size_t count = 0;
-
-    for (const Index& job_rank : route) {
-      if (jobs[job_rank].task_type.has_value() &&
-          jobs[job_rank].task_type.value() == job.task_type) {
-        count++;
-      }
-    }
-
-    return count;
-  }
-
-  // Values for begin and end are inclusive.
-  bool has_exceeded_max_tasks_within_range(
-    const Vehicle& vehicle,
-    const std::vector<vroom::Job>& jobs,
-    const MaxTasksMap& initial_task_count = MaxTasksMap(),
+  MaxTypeTasks get_task_count_per_type(
+    const Input& input,
     const std::optional<Index> begin = std::optional<Index>(),
     const std::optional<Index> end = std::optional<Index>()) const {
-    MaxTasksMap task_count = initial_task_count;
+    MaxTasksMap max_tasks_per_type;
 
-    const Index begin_value = begin.value_or(route.front());
-    const Index end_value = end.value_or(route.back()) + 1;
+    const Index begin_value = begin.value_or(0);
+    const Index end_value = end.value_or(route.size());
 
-    for (Index job_rank = begin_value; job_rank < end_value; ++job_rank) {
-      const Job& job = jobs[job_rank];
+    assert(begin_value <= end_value);
+    assert(end_value <= route.size());
+
+    for (Index i = begin_value; i < end_value; ++i) {
+      const Job& job = input.jobs[route[i]];
 
       if (!job.task_type.has_value()) {
         continue;
@@ -120,39 +103,14 @@ public:
 
       const std::string task_type = job.task_type.value();
 
-      if (task_count[task_type] >= vehicle.max_tasks_for(task_type)) {
-        return true;
+      if (max_tasks_per_type.find(task_type) == max_tasks_per_type.end()) {
+        max_tasks_per_type[task_type] = 0;
       }
 
-      task_count[task_type]++;
+      max_tasks_per_type[task_type]++;
     }
 
-    return false;
-  }
-
-  // Values for begin and end are inclusive.
-  MaxTasksMap get_max_tasks_map_within_range(
-    const std::vector<vroom::Job>& jobs,
-    const std::optional<Index> begin = std::optional<Index>(),
-    const std::optional<Index> end = std::optional<Index>()) const {
-    MaxTasksMap task_count;
-
-    const Index begin_value = begin.value_or(route.front());
-    const Index end_value = end.value_or(route.back()) + 1;
-
-    for (Index job_rank = begin_value; job_rank < end_value; ++job_rank) {
-      const Job& job = jobs[job_rank];
-
-      if (!job.task_type.has_value()) {
-        continue;
-      }
-
-      const std::string task_type = job.task_type.value();
-
-      task_count[task_type]++;
-    }
-
-    return task_count;
+    return MaxTypeTasks(max_tasks_per_type);
   }
 
   const Amount& fwd_peak(Index rank) const {

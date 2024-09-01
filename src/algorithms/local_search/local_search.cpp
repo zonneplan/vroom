@@ -244,9 +244,9 @@ void LocalSearch<Route,
           continue;
         }
 
-        if (current_r.task_count_of_type(current_job, _input.jobs) +
-              addition_to_tasks >
-            vehicle.max_tasks_for(current_job.task_type)) {
+        if (current_r.get_task_count_per_type(_input)
+              .add(current_job, addition_to_tasks)
+              .exceeds_for_vehicle(vehicle)) {
           continue;
         }
 
@@ -630,8 +630,6 @@ void LocalSearch<Route,
           continue;
         }
 
-        // Check if max_tasks is exceeded
-
         const auto& job_s_type = _input.jobs[s_job_rank].type;
 
         bool both_s_single =
@@ -779,12 +777,11 @@ void LocalSearch<Route,
             continue;
           }
 
-          // Check if this is correct
-          if (_sol[source].task_count_of_type(_input.jobs[s_job_rank],
-                                              _input.jobs) +
-                1 >
-              _input.vehicles[source].max_tasks_for(
-                _input.jobs[s_job_rank].task_type)) {
+          // This is incorrect
+          if (_sol[source]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[source])) {
             continue;
           }
 
@@ -947,23 +944,15 @@ void LocalSearch<Route,
             continue;
           }
 
-          if (_sol[target].has_exceeded_max_tasks_within_range(
-                s_v,
-                _input.jobs,
-                _sol[source].get_max_tasks_map_within_range(_input.jobs,
-                                                            0,
-                                                            s_rank - 1),
-                t_rank)) {
+          if ((_sol[target].get_task_count_per_type(_input, 0, s_rank) +
+               _sol[target].get_task_count_per_type(_input, t_rank))
+                .exceeds_for_vehicle(s_v)) {
             continue;
           }
 
-          if (_sol[source].has_exceeded_max_tasks_within_range(
-                t_v,
-                _input.jobs,
-                _sol[target].get_max_tasks_map_within_range(_input.jobs,
-                                                            0,
-                                                            t_rank - 1),
-                s_rank)) {
+          if ((_sol[source].get_task_count_per_type(_input, s_rank) +
+               _sol[source].get_task_count_per_type(_input, 0, t_rank))
+                .exceeds_for_vehicle(t_v)) {
             continue;
           }
 
@@ -1072,23 +1061,15 @@ void LocalSearch<Route,
             continue;
           }
 
-          if (_sol[source].has_exceeded_max_tasks_within_range(
-                s_v,
-                _input.jobs,
-                _sol[target].get_max_tasks_map_within_range(_input.jobs,
-                                                            0,
-                                                            t_rank),
-                0,
-                s_rank)) {
+          if ((_sol[source].get_task_count_per_type(_input, 0, s_rank + 1) +
+               _sol[source].get_task_count_per_type(_input, 0, t_rank + 1))
+                .exceeds_for_vehicle(s_v)) {
             continue;
           }
 
-          if (_sol[target].has_exceeded_max_tasks_within_range(
-                t_v,
-                _input.jobs,
-                _sol[source].get_max_tasks_map_within_range(_input.jobs,
-                                                            s_rank + 1),
-                t_rank + 1)) {
+          if ((_sol[target].get_task_count_per_type(_input, t_rank + 1) +
+               _sol[target].get_task_count_per_type(_input, s_rank + 1))
+                .exceeds_for_vehicle(t_v)) {
             continue;
           }
 
@@ -1162,11 +1143,10 @@ void LocalSearch<Route,
             continue;
           }
 
-          if (_sol[target].task_count_of_type(_input.jobs[s_job_rank],
-                                              _input.jobs) +
-                1 >
-              _input.vehicles[target].max_tasks_for(
-                _input.jobs[s_job_rank].task_type)) {
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
             continue;
           }
 
@@ -1232,33 +1212,12 @@ void LocalSearch<Route,
             continue;
           }
 
-          if (_input.jobs[s_job_rank].task_type.has_value() &&
-              _input.jobs[s_next_job_rank].task_type.has_value() &&
-              _input.jobs[s_job_rank].task_type ==
-                _input.jobs[s_next_job_rank].task_type) {
-            if (_sol[target].task_count_of_type(_input.jobs[s_job_rank],
-                                                _input.jobs) +
-                  2 >
-                _input.vehicles[target].max_tasks_for(
-                  _input.jobs[s_job_rank].task_type)) {
-              continue;
-            }
-          } else {
-            if (_sol[target].task_count_of_type(_input.jobs[s_job_rank],
-                                                _input.jobs) +
-                  1 >
-                _input.vehicles[target].max_tasks_for(
-                  _input.jobs[s_job_rank].task_type)) {
-              continue;
-            }
-
-            if (_sol[target].task_count_of_type(_input.jobs[s_next_job_rank],
-                                                _input.jobs) +
-                  1 >
-                _input.vehicles[target].max_tasks_for(
-                  _input.jobs[s_next_job_rank].task_type)) {
-              continue;
-            }
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_job_rank])
+                .add(_input.jobs[s_next_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
           }
 
           if (_input.jobs[s_job_rank].type != JOB_TYPE::SINGLE ||
@@ -1745,33 +1704,12 @@ void LocalSearch<Route,
           }
 
           // Check if this is correct.
-          if (_input.jobs[s_p_rank].task_type.has_value() &&
-              _input.jobs[s_d_rank].task_type.has_value() &&
-              _input.jobs[s_p_rank].task_type ==
-                _input.jobs[s_d_rank].task_type) {
-            if (_sol[target].task_count_of_type(_input.jobs[s_p_rank],
-                                                _input.jobs) +
-                  2 >
-                _input.vehicles[target].max_tasks_for(
-                  _input.jobs[s_p_rank].task_type)) {
-              continue;
-            }
-          } else {
-            if (_sol[target].task_count_of_type(_input.jobs[s_p_rank],
-                                                _input.jobs) +
-                  1 >
-                _input.vehicles[target].max_tasks_for(
-                  _input.jobs[s_p_rank].task_type)) {
-              continue;
-            }
-
-            if (_sol[target].task_count_of_type(_input.jobs[s_d_rank],
-                                                _input.jobs) +
-                  1 >
-                _input.vehicles[target].max_tasks_for(
-                  _input.jobs[s_d_rank].task_type)) {
-              continue;
-            }
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_p_rank])
+                .add(_input.jobs[s_d_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
           }
 
           if (_sol_state.pd_gains[source][s_p_rank] <=
@@ -1833,10 +1771,10 @@ void LocalSearch<Route,
           continue;
         }
 
-        if (_sol[source].has_exceeded_max_tasks_within_range(t_v,
-                                                             _input.jobs) ||
-            _sol[target].has_exceeded_max_tasks_within_range(s_v,
-                                                             _input.jobs)) {
+        if (_sol[source].get_task_count_per_type(_input).exceeds_for_vehicle(
+              t_v) ||
+            _sol[target].get_task_count_per_type(_input).exceeds_for_vehicle(
+              s_v)) {
           continue;
         }
 
