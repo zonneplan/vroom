@@ -534,6 +534,7 @@ void LocalSearch<Route,
                   .get_task_count_per_type(_input)
                   .sub(current_job)
                   .add(_input.jobs[u])
+                  .reset_negatives()
                   .exceeds_for_vehicle(_input.vehicles[source])) {
               continue;
             }
@@ -687,6 +688,7 @@ void LocalSearch<Route,
                 .sub(_input.jobs[s_next_job_rank])
                 .add(_input.jobs[t_job_rank])
                 .add(_input.jobs[t_next_job_rank])
+                .reset_negatives()
                 .exceeds_for_vehicle(_input.vehicles[source])) {
             continue;
           }
@@ -697,6 +699,7 @@ void LocalSearch<Route,
                 .sub(_input.jobs[t_next_job_rank])
                 .add(_input.jobs[s_job_rank])
                 .add(_input.jobs[s_next_job_rank])
+                .reset_negatives()
                 .exceeds_for_vehicle(_input.vehicles[target])) {
             continue;
           }
@@ -830,6 +833,7 @@ void LocalSearch<Route,
                   .sub(_input.jobs[s_job_rank])
                   .add(_input.jobs[t_job_rank])
                   .add(_input.jobs[t_next_job_rank])
+                  .reset_negatives()
                   .exceeds_for_vehicle(_input.vehicles[source])) {
               continue;
             }
@@ -839,6 +843,7 @@ void LocalSearch<Route,
                   .sub(_input.jobs[t_job_rank])
                   .sub(_input.jobs[t_next_job_rank])
                   .add(_input.jobs[s_job_rank])
+                  .reset_negatives()
                   .exceeds_for_vehicle(_input.vehicles[target])) {
               continue;
             }
