@@ -432,8 +432,6 @@ void LocalSearch<Route,
             continue;
           }
 
-          // TODO Casper: PriorityReplace
-
           // Find where to stop when replacing beginning of route.
           const auto fwd_over =
             std::ranges::find_if(_sol_state.fwd_priority[source],
@@ -485,6 +483,25 @@ void LocalSearch<Route,
                 (best_priorities[source] < r.priority_gain() ||
                  (best_priorities[source] == r.priority_gain() &&
                   best_gains[source][source] < r.gain()))) {
+
+              if (r.should_replace_start()) {
+                if (_sol[source]
+                      .get_task_count_per_type(_input, fwd_last_rank + 1)
+                      .add(_input.jobs[u])
+                      .reset_negatives()
+                      .exceeds_for_vehicle(_input.vehicles[source])) {
+                  continue;
+                }
+              } else {
+                if (_sol[source]
+                      .get_task_count_per_type(_input, 0, bwd_first_rank)
+                      .add(_input.jobs[u])
+                      .reset_negatives()
+                      .exceeds_for_vehicle(_input.vehicles[source])) {
+                  continue;
+                }
+              }
+
               best_priorities[source] = r.priority_gain();
               // This may potentially define a negative value as best
               // gain.
