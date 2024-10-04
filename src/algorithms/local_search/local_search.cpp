@@ -237,8 +237,16 @@ void LocalSearch<Route,
         const auto& current_r = _sol[routes[i]];
         const auto& vehicle = _input.vehicles[routes[i]];
 
-        if (bool is_pickup = (_input.jobs[j].type == JOB_TYPE::PICKUP);
-            current_r.size() + (is_pickup ? 2 : 1) > vehicle.max_tasks) {
+        bool is_pickup = (current_job.type == JOB_TYPE::PICKUP);
+        int addition_to_tasks = is_pickup ? 2 : 1;
+
+        if (current_r.size() + addition_to_tasks > vehicle.max_tasks) {
+          continue;
+        }
+
+        if (current_r.get_task_count_per_type(_input)
+              .add(current_job, addition_to_tasks)
+              .exceeds_for_vehicle(vehicle)) {
           continue;
         }
 
@@ -457,6 +465,7 @@ void LocalSearch<Route,
 
           if (best_current_priority > 0 &&
               best_priorities[source] <= best_current_priority) {
+
 #ifdef LOG_LS_OPERATORS
             ++tried_moves[OperatorName::PriorityReplace];
 #endif
@@ -474,6 +483,25 @@ void LocalSearch<Route,
                 (best_priorities[source] < r.priority_gain() ||
                  (best_priorities[source] == r.priority_gain() &&
                   best_gains[source][source] < r.gain()))) {
+
+              if (r.should_replace_start()) {
+                if (_sol[source]
+                      .get_task_count_per_type(_input, fwd_last_rank + 1)
+                      .add(_input.jobs[u])
+                      .reset_negatives()
+                      .exceeds_for_vehicle(_input.vehicles[source])) {
+                  continue;
+                }
+              } else {
+                if (_sol[source]
+                      .get_task_count_per_type(_input, 0, bwd_first_rank)
+                      .add(_input.jobs[u])
+                      .reset_negatives()
+                      .exceeds_for_vehicle(_input.vehicles[source])) {
+                  continue;
+                }
+              }
+
               best_priorities[source] = r.priority_gain();
               // This may potentially define a negative value as best
               // gain.
@@ -519,6 +547,15 @@ void LocalSearch<Route,
               continue;
             }
 
+            if (_sol[source]
+                  .get_task_count_per_type(_input)
+                  .sub(current_job)
+                  .add(_input.jobs[u])
+                  .reset_negatives()
+                  .exceeds_for_vehicle(_input.vehicles[source])) {
+              continue;
+            }
+
             const Priority priority_gain = u_priority - current_job.priority;
 
             if (best_priorities[source] <= priority_gain) {
@@ -559,6 +596,7 @@ void LocalSearch<Route,
                   // Same move as with t_rank == s_rank.
                   continue;
                 }
+
 #ifdef LOG_LS_OPERATORS
                 ++tried_moves[OperatorName::UnassignedExchange];
 #endif
@@ -658,6 +696,28 @@ void LocalSearch<Route,
 
           if (!_input.vehicle_ok_with_job(source, t_job_rank) ||
               !_input.vehicle_ok_with_job(source, t_next_job_rank)) {
+            continue;
+          }
+
+          if (_sol[source]
+                .get_task_count_per_type(_input)
+                .sub(_input.jobs[s_job_rank])
+                .sub(_input.jobs[s_next_job_rank])
+                .add(_input.jobs[t_job_rank])
+                .add(_input.jobs[t_next_job_rank])
+                .reset_negatives()
+                .exceeds_for_vehicle(_input.vehicles[source])) {
+            continue;
+          }
+
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .sub(_input.jobs[t_job_rank])
+                .sub(_input.jobs[t_next_job_rank])
+                .add(_input.jobs[s_job_rank])
+                .add(_input.jobs[s_next_job_rank])
+                .reset_negatives()
+                .exceeds_for_vehicle(_input.vehicles[target])) {
             continue;
           }
 
@@ -784,6 +844,26 @@ void LocalSearch<Route,
             const auto t_job_rank = _sol[target].route[t_rank];
             const auto t_next_job_rank = _sol[target].route[t_rank + 1];
             const auto& job_t_type = _input.jobs[t_job_rank].type;
+
+            if (_sol[source]
+                  .get_task_count_per_type(_input)
+                  .sub(_input.jobs[s_job_rank])
+                  .add(_input.jobs[t_job_rank])
+                  .add(_input.jobs[t_next_job_rank])
+                  .reset_negatives()
+                  .exceeds_for_vehicle(_input.vehicles[source])) {
+              continue;
+            }
+
+            if (_sol[target]
+                  .get_task_count_per_type(_input)
+                  .sub(_input.jobs[t_job_rank])
+                  .sub(_input.jobs[t_next_job_rank])
+                  .add(_input.jobs[s_job_rank])
+                  .reset_negatives()
+                  .exceeds_for_vehicle(_input.vehicles[target])) {
+              continue;
+            }
 
             bool both_t_single =
               (job_t_type == JOB_TYPE::SINGLE) &&
@@ -919,6 +999,18 @@ void LocalSearch<Route,
             continue;
           }
 
+          if ((_sol[source].get_task_count_per_type(_input, 0, s_rank) +
+               _sol[target].get_task_count_per_type(_input, t_rank))
+                .exceeds_for_vehicle(s_v)) {
+            continue;
+          }
+
+          if ((_sol[source].get_task_count_per_type(_input, s_rank) +
+               _sol[target].get_task_count_per_type(_input, 0, t_rank))
+                .exceeds_for_vehicle(t_v)) {
+            continue;
+          }
+
           const auto& t_bwd_delivery = _sol[target].bwd_deliveries(t_rank);
 
           if (const auto& t_bwd_pickup = _sol[target].bwd_pickups(t_rank);
@@ -1024,6 +1116,18 @@ void LocalSearch<Route,
             continue;
           }
 
+          if ((_sol[source].get_task_count_per_type(_input, 0, s_rank + 1) +
+               _sol[target].get_task_count_per_type(_input, 0, t_rank + 1))
+                .exceeds_for_vehicle(s_v)) {
+            continue;
+          }
+
+          if ((_sol[target].get_task_count_per_type(_input, t_rank + 1) +
+               _sol[source].get_task_count_per_type(_input, s_rank + 1))
+                .exceeds_for_vehicle(t_v)) {
+            continue;
+          }
+
           const auto& t_fwd_delivery = _sol[target].fwd_deliveries(t_rank);
 
           if (const auto& t_fwd_pickup = _sol[target].fwd_pickups(t_rank);
@@ -1094,6 +1198,13 @@ void LocalSearch<Route,
             continue;
           }
 
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
+          }
+
           const auto& s_pickup = _input.jobs[s_job_rank].pickup;
 
           if (const auto& s_delivery = _input.jobs[s_job_rank].delivery;
@@ -1156,6 +1267,14 @@ void LocalSearch<Route,
             continue;
           }
 
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_job_rank])
+                .add(_input.jobs[s_next_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
+          }
+
           if (_input.jobs[s_job_rank].type != JOB_TYPE::SINGLE ||
               _input.jobs[s_next_job_rank].type != JOB_TYPE::SINGLE) {
             // Don't try moving part of a shipment. Moving a full
@@ -1212,6 +1331,8 @@ void LocalSearch<Route,
             _sol[source].size() < 2) {
           continue;
         }
+
+        // TODO Casper: TSPFix
 
 #ifdef LOG_LS_OPERATORS
         ++tried_moves[OperatorName::TSPFix];
@@ -1574,6 +1695,7 @@ void LocalSearch<Route,
                                    static_cast<Index>(end_s - 1));
 
         for (unsigned t_rank = s_rank + 2; t_rank < end_t_rank; ++t_rank) {
+
 #ifdef LOG_LS_OPERATORS
           ++tried_moves[OperatorName::IntraTwoOpt];
 #endif
@@ -1622,6 +1744,15 @@ void LocalSearch<Route,
                                           _sol[source].route[s_p_rank]) ||
               !_input.vehicle_ok_with_job(target,
                                           _sol[source].route[s_d_rank])) {
+            continue;
+          }
+
+          // TODO Casper: PDShift
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_p_rank])
+                .add(_input.jobs[s_d_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
             continue;
           }
 
@@ -1684,6 +1815,13 @@ void LocalSearch<Route,
           continue;
         }
 
+        if (_sol[source].get_task_count_per_type(_input).exceeds_for_vehicle(
+              t_v) ||
+            _sol[target].get_task_count_per_type(_input).exceeds_for_vehicle(
+              s_v)) {
+          continue;
+        }
+
         const auto& s_deliveries_sum = _sol[source].job_deliveries_sum();
         const auto& s_pickups_sum = _sol[source].job_pickups_sum();
         const auto& t_deliveries_sum = _sol[target].job_deliveries_sum();
@@ -1720,6 +1858,10 @@ void LocalSearch<Route,
             best_priorities[source] > 0 || best_priorities[target] > 0 ||
             _sol[source].size() == 0 || _sol[target].size() == 0 ||
             !_input.vehicle_ok_with_vehicle(source, target) ||
+            _sol[source].get_task_count_per_type(_input).exceeds_for_vehicle(
+              _input.vehicles[target]) ||
+            _sol[target].get_task_count_per_type(_input).exceeds_for_vehicle(
+              _input.vehicles[source]) ||
             (_input.all_locations_have_coords() &&
              _input.vehicles[source].has_same_profile(
                _input.vehicles[target]) &&

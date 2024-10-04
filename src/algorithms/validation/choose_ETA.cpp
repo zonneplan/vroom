@@ -1184,6 +1184,7 @@ Route choose_ETA(const Input& input,
   auto previous_location = (v.has_start()) ? v.start.value().index()
                                            : std::numeric_limits<Index>::max();
 
+  MaxTasksMap task_count;
   Index previous_rank_in_J = 0;
   UserDistance distances_sum = 0;
   UserDistance breaks_distances_sum = 0;
@@ -1273,6 +1274,17 @@ Route choose_ETA(const Input& input,
       if (v.max_tasks < number_of_tasks) {
         current.violations.types.insert(VIOLATION::MAX_TASKS);
         v_types.insert(VIOLATION::MAX_TASKS);
+      }
+      if (job.task_type.has_value()) {
+        const std::string task_type = job.task_type.value();
+
+        task_count[task_type]++;
+
+        if (task_count[task_type] >= 0 &&
+            (uint64_t)task_count[task_type] > v.max_tasks_for(task_type)) {
+          current.violations.types.insert(VIOLATION::MAX_TASKS_FOR_TYPE);
+          v_types.insert(VIOLATION::MAX_TASKS_FOR_TYPE);
+        }
       }
       if (!v.ok_for_travel_time(
             utils::scale_from_user_duration(user_duration))) {

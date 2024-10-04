@@ -12,6 +12,7 @@ All rights reserved (see LICENSE).
 
 #include "structures/typedefs.h"
 #include "structures/vroom/input/input.h"
+#include "structures/vroom/max_type_tasks.h"
 
 namespace vroom {
 
@@ -80,6 +81,37 @@ public:
   bool has_delivery_after_rank(const Index rank) const;
 
   bool has_pickup_up_to_rank(const Index rank) const;
+
+  MaxTypeTasks get_task_count_per_type(
+    const Input& input,
+    const std::optional<Index> begin = std::optional<Index>(),
+    const std::optional<Index> end = std::optional<Index>()) const {
+    MaxTasksMap max_tasks_per_type;
+
+    const Index begin_value = begin.value_or(0);
+    const Index end_value = end.value_or(route.size());
+
+    assert(begin_value <= end_value);
+    assert(end_value <= route.size());
+
+    for (Index i = begin_value; i < end_value; ++i) {
+      const Job& job = input.jobs[route[i]];
+
+      if (!job.task_type.has_value()) {
+        continue;
+      }
+
+      const std::string task_type = job.task_type.value();
+
+      if (max_tasks_per_type.find(task_type) == max_tasks_per_type.end()) {
+        max_tasks_per_type[task_type] = 0;
+      }
+
+      max_tasks_per_type[task_type]++;
+    }
+
+    return MaxTypeTasks(max_tasks_per_type);
+  }
 
   const Amount& fwd_peak(Index rank) const {
     return _fwd_peaks[rank];

@@ -115,8 +115,15 @@ Eval basic(const Input& input,
         }
 
         bool is_pickup = (current_job.type == JOB_TYPE::PICKUP);
+        int addition_to_tasks = is_pickup ? 2 : 1;
 
-        if (current_r.size() + (is_pickup ? 2 : 1) > vehicle.max_tasks) {
+        if (current_r.size() + addition_to_tasks > vehicle.max_tasks) {
+          continue;
+        }
+
+        if (current_r.get_task_count_per_type(input)
+              .add(current_job, addition_to_tasks)
+              .exceeds_for_vehicle(vehicle)) {
           continue;
         }
 
@@ -235,7 +242,10 @@ Eval basic(const Input& input,
         }
 
         if (current_job.type == JOB_TYPE::SINGLE &&
-            current_r.size() + 1 <= vehicle.max_tasks) {
+            current_r.size() + 1 <= vehicle.max_tasks &&
+            !current_r.get_task_count_per_type(input)
+               .add(current_job)
+               .exceeds_for_vehicle(vehicle)) {
           for (Index r = 0; r <= current_r.size(); ++r) {
             const auto current_eval = utils::addition_cost(input,
                                                            job_rank,
@@ -265,7 +275,10 @@ Eval basic(const Input& input,
         }
 
         if (current_job.type == JOB_TYPE::PICKUP &&
-            current_r.size() + 2 <= vehicle.max_tasks) {
+            current_r.size() + 2 <= vehicle.max_tasks &&
+            !current_r.get_task_count_per_type(input)
+               .add(current_job, 2)
+               .exceeds_for_vehicle(vehicle)) {
           // Pre-compute cost of addition for matching delivery.
           std::vector<Eval> d_adds(current_r.route.size() + 1);
           std::vector<unsigned char> valid_delivery_insertions(
@@ -564,8 +577,15 @@ Eval dynamic_vehicle_choice(const Input& input,
         }
 
         bool is_pickup = (current_job.type == JOB_TYPE::PICKUP);
+        int addition_to_tasks = is_pickup ? 2 : 1;
 
-        if (current_r.size() + (is_pickup ? 2 : 1) > vehicle.max_tasks) {
+        if (current_r.size() + addition_to_tasks > vehicle.max_tasks) {
+          continue;
+        }
+
+        if (current_r.get_task_count_per_type(input)
+              .add(current_job, addition_to_tasks)
+              .exceeds_for_vehicle(vehicle)) {
           continue;
         }
 
@@ -685,7 +705,10 @@ Eval dynamic_vehicle_choice(const Input& input,
         }
 
         if (current_job.type == JOB_TYPE::SINGLE &&
-            current_r.size() + 1 <= vehicle.max_tasks) {
+            current_r.size() + 1 <= vehicle.max_tasks &&
+            !current_r.get_task_count_per_type(input)
+               .add(current_job)
+               .exceeds_for_vehicle(vehicle)) {
           for (Index r = 0; r <= current_r.size(); ++r) {
             const auto current_eval = utils::addition_cost(input,
                                                            job_rank,
@@ -715,7 +738,10 @@ Eval dynamic_vehicle_choice(const Input& input,
         }
 
         if (current_job.type == JOB_TYPE::PICKUP &&
-            current_r.size() + 2 <= vehicle.max_tasks) {
+            current_r.size() + 2 <= vehicle.max_tasks &&
+            !current_r.get_task_count_per_type(input)
+               .add(current_job, 2)
+               .exceeds_for_vehicle(vehicle)) {
           // Pre-compute cost of addition for matching delivery.
           std::vector<Eval> d_adds(current_r.route.size() + 1);
           std::vector<unsigned char> valid_delivery_insertions(
@@ -983,6 +1009,31 @@ void initial_routes(const Input& input, std::vector<Route>& routes) {
     if (vehicle.max_tasks < job_ranks.size()) {
       throw InputException("Too many tasks for vehicle " +
                            std::to_string(vehicle.id) + ".");
+    }
+
+    // Check foreach vehicle.max_tasks_for that the number of
+    // tasks of each type is not exceeded.
+    MaxTasksMap task_count;
+
+    for (const auto job_rank : job_ranks) {
+      const Job& job = input.jobs[job_rank];
+
+      if (!job.task_type.has_value()) {
+        continue;
+      }
+
+      const std::string task_type = job.task_type.value();
+
+      // Increment the task count for the current task type
+      task_count[task_type]++;
+
+      if (task_count[task_type] >= 0 &&
+          (uint64_t)task_count[task_type] >
+            vehicle.max_tasks_for(job.task_type)) {
+        throw InputException("Too many tasks of type " + task_type +
+                             " for vehicle " + std::to_string(vehicle.id) +
+                             ".");
+      }
     }
 
     if (!expected_delivery_ranks.empty()) {

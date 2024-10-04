@@ -30,6 +30,7 @@ All rights reserved (see LICENSE).
 #include "problems/cvrp/operators/two_opt.h"
 #include "problems/cvrp/operators/unassigned_exchange.h"
 #include "problems/tsp/tsp.h"
+#include "structures/vroom/max_type_tasks.h"
 #include "utils/helpers.h"
 
 namespace vroom {
@@ -150,6 +151,7 @@ Solution CVRP::solve(unsigned exploration_level,
   if (_input.vehicles.size() == 1 && !_input.has_skills() &&
       _input.zero_amount().empty() && !_input.has_shipments() &&
       (_input.jobs.size() <= _input.vehicles[0].max_tasks) &&
+      !MaxTypeTasks(_input.jobs).exceeds_for_vehicle(_input.vehicles[0]) &&
       _input.vehicles[0].steps.empty() &&
       !_input.vehicles[0].has_range_bounds()) {
     // This is a plain TSP, no need to go through the trouble below.

@@ -53,6 +53,8 @@ public:
 
   void apply() override;
 
+  bool should_replace_start();
+
   Priority priority_gain();
 
   std::vector<Index> addition_candidates() const override;

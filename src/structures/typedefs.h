@@ -45,6 +45,8 @@ using Coordinate = double;
 using Capacity = int64_t;
 using Skill = uint32_t;
 using Priority = uint32_t;
+using MaxTasks = size_t;
+using MaxTasksMap = std::map<std::string, int64_t>;
 
 // Type helpers.
 struct Coordinates {
@@ -152,6 +154,7 @@ enum class VIOLATION {
   DELAY,
   LOAD,
   MAX_TASKS,
+  MAX_TASKS_FOR_TYPE,
   SKILLS,
   PRECEDENCE,
   MISSING_BREAK,
