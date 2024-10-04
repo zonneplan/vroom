@@ -42,6 +42,9 @@ get_violations(const Violations& violations,
     case MAX_TASKS:
       cause = "max_tasks";
       break;
+    case MAX_TASKS_FOR_TYPE:
+      cause = "max_tasks_for_type";
+      break;
     case SKILLS:
       cause = "skills";
       break;

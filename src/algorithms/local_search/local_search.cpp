@@ -185,9 +185,17 @@ void LocalSearch<Route,
     Index best_v = 0;
 
     for (const auto v : routes) {
-      if (const unsigned added_tasks =
-            (current_job.type == JOB_TYPE::PICKUP) ? 2 : 1;
-          _sol[v].size() + added_tasks > _input.vehicles[v].max_tasks) {
+      const unsigned added_tasks =
+        (current_job.type == JOB_TYPE::PICKUP) ? 2 : 1;
+
+      if (_sol[v].size() + added_tasks > _input.vehicles[v].max_tasks) {
+        continue;
+      }
+
+      if (_sol[v]
+            .get_task_count_per_type(_input)
+            .add(current_job, added_tasks)
+            .exceeds_for_vehicle(_input.vehicles[v])) {
         continue;
       }
 
@@ -407,6 +415,25 @@ void LocalSearch<Route,
                 (best_priorities[source] < r.priority_gain() ||
                  (best_priorities[source] == r.priority_gain() &&
                   best_gains[source][source] < r.gain()))) {
+
+              if (r.should_replace_start()) {
+                if (_sol[source]
+                      .get_task_count_per_type(_input, fwd_last_rank + 1)
+                      .add(_input.jobs[u])
+                      .reset_negatives()
+                      .exceeds_for_vehicle(_input.vehicles[source])) {
+                  continue;
+                }
+              } else {
+                if (_sol[source]
+                      .get_task_count_per_type(_input, 0, bwd_first_rank)
+                      .add(_input.jobs[u])
+                      .reset_negatives()
+                      .exceeds_for_vehicle(_input.vehicles[source])) {
+                  continue;
+                }
+              }
+
               best_priorities[source] = r.priority_gain();
               // This may potentially define a negative value as best
               // gain.
@@ -449,6 +476,15 @@ void LocalSearch<Route,
             const auto& current_job = _input.jobs[_sol[source].route[s_rank]];
             if (current_job.type != JOB_TYPE::SINGLE ||
                 u_priority < current_job.priority) {
+              continue;
+            }
+
+            if (_sol[source]
+                  .get_task_count_per_type(_input)
+                  .sub(current_job)
+                  .add(_input.jobs[u])
+                  .reset_negatives()
+                  .exceeds_for_vehicle(_input.vehicles[source])) {
               continue;
             }
 
@@ -594,6 +630,28 @@ void LocalSearch<Route,
             continue;
           }
 
+          if (_sol[source]
+                .get_task_count_per_type(_input)
+                .sub(_input.jobs[s_job_rank])
+                .sub(_input.jobs[s_next_job_rank])
+                .add(_input.jobs[t_job_rank])
+                .add(_input.jobs[t_next_job_rank])
+                .reset_negatives()
+                .exceeds_for_vehicle(_input.vehicles[source])) {
+            continue;
+          }
+
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .sub(_input.jobs[t_job_rank])
+                .sub(_input.jobs[t_next_job_rank])
+                .add(_input.jobs[s_job_rank])
+                .add(_input.jobs[s_next_job_rank])
+                .reset_negatives()
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
+          }
+
           const auto& job_t_type = _input.jobs[t_job_rank].type;
 
           bool both_t_single =
@@ -717,6 +775,26 @@ void LocalSearch<Route,
             const auto t_job_rank = _sol[target].route[t_rank];
             const auto t_next_job_rank = _sol[target].route[t_rank + 1];
             const auto& job_t_type = _input.jobs[t_job_rank].type;
+
+            if (_sol[source]
+                  .get_task_count_per_type(_input)
+                  .sub(_input.jobs[s_job_rank])
+                  .add(_input.jobs[t_job_rank])
+                  .add(_input.jobs[t_next_job_rank])
+                  .reset_negatives()
+                  .exceeds_for_vehicle(_input.vehicles[source])) {
+              continue;
+            }
+
+            if (_sol[target]
+                  .get_task_count_per_type(_input)
+                  .sub(_input.jobs[t_job_rank])
+                  .sub(_input.jobs[t_next_job_rank])
+                  .add(_input.jobs[s_job_rank])
+                  .reset_negatives()
+                  .exceeds_for_vehicle(_input.vehicles[target])) {
+              continue;
+            }
 
             bool both_t_single =
               (job_t_type == JOB_TYPE::SINGLE) &&
@@ -852,6 +930,18 @@ void LocalSearch<Route,
             continue;
           }
 
+          if ((_sol[source].get_task_count_per_type(_input, 0, s_rank) +
+               _sol[target].get_task_count_per_type(_input, t_rank))
+                .exceeds_for_vehicle(s_v)) {
+            continue;
+          }
+
+          if ((_sol[source].get_task_count_per_type(_input, s_rank) +
+               _sol[target].get_task_count_per_type(_input, 0, t_rank))
+                .exceeds_for_vehicle(t_v)) {
+            continue;
+          }
+
           const auto& t_bwd_delivery = _sol[target].bwd_deliveries(t_rank);
 
           if (const auto& t_bwd_pickup = _sol[target].bwd_pickups(t_rank);
@@ -957,6 +1047,18 @@ void LocalSearch<Route,
             continue;
           }
 
+          if ((_sol[source].get_task_count_per_type(_input, 0, s_rank + 1) +
+               _sol[target].get_task_count_per_type(_input, 0, t_rank + 1))
+                .exceeds_for_vehicle(s_v)) {
+            continue;
+          }
+
+          if ((_sol[target].get_task_count_per_type(_input, t_rank + 1) +
+               _sol[source].get_task_count_per_type(_input, s_rank + 1))
+                .exceeds_for_vehicle(t_v)) {
+            continue;
+          }
+
           const auto& t_fwd_delivery = _sol[target].fwd_deliveries(t_rank);
 
           if (const auto& t_fwd_pickup = _sol[target].fwd_pickups(t_rank);
@@ -1027,6 +1129,13 @@ void LocalSearch<Route,
             continue;
           }
 
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
+          }
+
           const auto& s_pickup = _input.jobs[s_job_rank].pickup;
 
           if (const auto& s_delivery = _input.jobs[s_job_rank].delivery;
@@ -1086,6 +1195,14 @@ void LocalSearch<Route,
 
           if (!_input.vehicle_ok_with_job(target, s_job_rank) ||
               !_input.vehicle_ok_with_job(target, s_next_job_rank)) {
+            continue;
+          }
+
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_job_rank])
+                .add(_input.jobs[s_next_job_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
             continue;
           }
 
@@ -1558,6 +1675,14 @@ void LocalSearch<Route,
             continue;
           }
 
+          if (_sol[target]
+                .get_task_count_per_type(_input)
+                .add(_input.jobs[s_p_rank])
+                .add(_input.jobs[s_d_rank])
+                .exceeds_for_vehicle(_input.vehicles[target])) {
+            continue;
+          }
+
           if (_sol_state.pd_gains[source][s_p_rank] <=
               best_gains[source][target]) {
             // Except if addition cost in target route is negative
@@ -1617,6 +1742,13 @@ void LocalSearch<Route,
           continue;
         }
 
+        if (_sol[source].get_task_count_per_type(_input).exceeds_for_vehicle(
+              t_v) ||
+            _sol[target].get_task_count_per_type(_input).exceeds_for_vehicle(
+              s_v)) {
+          continue;
+        }
+
         const auto& s_deliveries_sum = _sol[source].job_deliveries_sum();
         const auto& s_pickups_sum = _sol[source].job_pickups_sum();
         const auto& t_deliveries_sum = _sol[target].job_deliveries_sum();
@@ -1653,6 +1785,10 @@ void LocalSearch<Route,
             best_priorities[source] > 0 || best_priorities[target] > 0 ||
             _sol[source].size() == 0 || _sol[target].size() == 0 ||
             !_input.vehicle_ok_with_vehicle(source, target) ||
+            _sol[source].get_task_count_per_type(_input).exceeds_for_vehicle(
+              _input.vehicles[target]) ||
+            _sol[target].get_task_count_per_type(_input).exceeds_for_vehicle(
+              _input.vehicles[source]) ||
             (_input.all_locations_have_coords() &&
              _input.vehicles[source].has_same_profile(
                _input.vehicles[target]) &&

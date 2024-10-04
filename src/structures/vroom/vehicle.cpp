@@ -26,7 +26,8 @@ Vehicle::Vehicle(Id id,
                  std::string description,
                  const VehicleCosts& costs,
                  double speed_factor,
-                 const std::optional<size_t>& max_tasks,
+                 const std::optional<MaxTasks>& max_tasks,
+                 const std::optional<MaxTasksMap>& max_tasks_per_job_type,
                  const std::optional<UserDuration>& max_travel_time,
                  const std::optional<UserDistance>& max_distance,
                  const std::vector<VehicleStep>& input_steps)
@@ -42,6 +43,7 @@ Vehicle::Vehicle(Id id,
     costs(costs),
     cost_wrapper(speed_factor, costs.per_hour, costs.per_km),
     max_tasks(max_tasks.value_or(DEFAULT_MAX_TASKS)),
+    max_tasks_per_job_type(max_tasks_per_job_type.value_or(MaxTasksMap())),
     max_travel_time(max_travel_time.has_value()
                       ? utils::scale_from_user_duration(max_travel_time.value())
                       : DEFAULT_MAX_TRAVEL_TIME),

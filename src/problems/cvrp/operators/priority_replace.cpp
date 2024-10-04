@@ -43,6 +43,12 @@ PriorityReplace::PriorityReplace(const Input& input,
   assert(_start_priority_gain > 0 or _end_priority_gain > 0);
 }
 
+bool PriorityReplace::should_replace_start() {
+  assert(replace_start_valid xor replace_end_valid);
+
+  return replace_start_valid;
+}
+
 void PriorityReplace::compute_start_gain() {
   const auto& v = _input.vehicles[s_vehicle];
 

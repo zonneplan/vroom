@@ -32,7 +32,8 @@ Job::Job(Id id,
          Skills skills,
          Priority priority,
          const std::vector<TimeWindow>& tws,
-         std::string description)
+         std::string description,
+         const std::optional<std::string>& task_type)
   : location(location),
     id(id),
     type(JOB_TYPE::SINGLE),
@@ -44,7 +45,8 @@ Job::Job(Id id,
     priority(priority),
     tws(tws),
     tw_length(get_tw_length(tws)),
-    description(std::move(description)) {
+    description(std::move(description)),
+    task_type(task_type) {
   utils::check_tws(tws, id, "job");
   utils::check_priority(priority, id, "job");
 }
@@ -58,7 +60,8 @@ Job::Job(Id id,
          Skills skills,
          Priority priority,
          const std::vector<TimeWindow>& tws,
-         std::string description)
+         std::string description,
+         const std::optional<std::string>& task_type)
   : location(location),
     id(id),
     type(type),
@@ -70,7 +73,8 @@ Job::Job(Id id,
     priority(priority),
     tws(tws),
     tw_length(get_tw_length(tws)),
-    description(std::move(description)) {
+    description(std::move(description)),
+    task_type(task_type) {
   assert(type == JOB_TYPE::PICKUP || type == JOB_TYPE::DELIVERY);
   utils::check_tws(tws, id, "job");
   utils::check_priority(priority, id, "job");

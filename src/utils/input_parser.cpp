@@ -12,6 +12,7 @@ All rights reserved (see LICENSE).
 #include "../include/rapidjson/include/rapidjson/document.h"
 #include "../include/rapidjson/include/rapidjson/error/en.h"
 
+#include "utils/helpers.h"
 #include "utils/input_parser.h"
 
 namespace vroom::io {
@@ -28,6 +29,18 @@ inline Coordinates parse_coordinates(const rapidjson::Value& object,
 
 inline std::string get_string(const rapidjson::Value& object, const char* key) {
   std::string value;
+  if (object.HasMember(key)) {
+    if (!object[key].IsString()) {
+      throw InputException("Invalid " + std::string(key) + " value.");
+    }
+    value = object[key].GetString();
+  }
+  return value;
+}
+
+inline std::optional<std::string>
+get_optional_string(const rapidjson::Value& object, const char* key) {
+  std::optional<std::string> value;
   if (object.HasMember(key)) {
     if (!object[key].IsString()) {
       throw InputException("Invalid " + std::string(key) + " value.");
@@ -104,6 +117,40 @@ inline UserDuration get_duration(const rapidjson::Value& object,
     duration = object[key].GetUint();
   }
   return duration;
+}
+
+inline MaxTasksMap get_max_tasks_map(const rapidjson::Value& object,
+                                     const char* key) {
+  MaxTasksMap max_tasks;
+
+  if (!object.HasMember(key)) {
+    return max_tasks;
+  }
+
+  if (!object[key].IsObject()) {
+    throw std::runtime_error("Invalid " + std::string(key) + " value.");
+  }
+
+  const auto& taskObject = object[key].GetObject();
+
+  for (auto& member : taskObject) {
+    if (!member.value.IsInt64()) {
+      throw std::runtime_error("Invalid " + std::string(key) + " value.");
+    }
+
+    if (!member.name.IsString()) {
+      throw std::runtime_error("Invalid " + std::string(key) + " value.");
+    }
+
+    if (member.value.GetInt64() < 0) {
+      throw std::runtime_error("Invalid (negative) " + std::string(key) +
+                               " value.");
+    }
+
+    max_tasks[member.name.GetString()] = member.value.GetInt64();
+  }
+
+  return max_tasks;
 }
 
 inline Priority get_priority(const rapidjson::Value& object) {
@@ -427,7 +474,8 @@ inline Vehicle get_vehicle(const rapidjson::Value& json_vehicle,
                  get_string(json_vehicle, "description"),
                  get_vehicle_costs(json_vehicle),
                  get_double(json_vehicle, "speed_factor"),
-                 get_value_for<size_t>(json_vehicle, "max_tasks"),
+                 get_value_for<MaxTasks>(json_vehicle, "max_tasks"),
+                 get_max_tasks_map(json_vehicle, "max_tasks_per_job_type"),
                  get_value_for<UserDuration>(json_vehicle, "max_travel_time"),
                  get_value_for<UserDistance>(json_vehicle, "max_distance"),
                  get_vehicle_steps(json_vehicle));
@@ -476,7 +524,8 @@ inline Job get_job(const rapidjson::Value& json_job, unsigned amount_size) {
              get_skills(json_job),
              get_priority(json_job),
              get_time_windows(json_job),
-             get_string(json_job, "description"));
+             get_string(json_job, "description"),
+             get_optional_string(json_job, "task_type"));
 }
 
 template <class T> inline Matrix<T> get_matrix(rapidjson::Value& m) {
