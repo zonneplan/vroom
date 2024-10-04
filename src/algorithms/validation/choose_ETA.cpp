@@ -27,11 +27,12 @@ inline Duration get_violation(const std::vector<TimeWindow>& tws,
   Duration violation = 0;
   if (const auto tw = std::ranges::find_if(tws,
                                            [&](const auto& candidate_tw) {
-                                             return arrival <= candidate_tw.end;
+                                             return arrival <=
+                                                    candidate_tw.end; //
                                            });
       tw == tws.end()) {
     // Delay from last time window.
-    violation = (arrival - tws.back().end);
+    violation = (arrival - tws.back().end); //
   } else {
     // No violation if arrival in this time window (tw->start <=
     // arrival).
@@ -42,7 +43,8 @@ inline Duration get_violation(const std::vector<TimeWindow>& tws,
       } else {
         // Pick smallest violation between both time windows.
         const auto previous_tw = std::prev(tw, 1);
-        violation = std::min(arrival - previous_tw->end, tw->start - arrival);
+        violation =
+          std::min(arrival - previous_tw->end, tw->start - arrival); //
       }
     }
   }
@@ -127,7 +129,7 @@ Route choose_ETA(const Input& input,
         ++default_job_tw;
       } else {
         horizon_start = std::min(horizon_start, job.tws.front().start);
-        horizon_end = std::max(horizon_end, job.tws.back().end);
+        horizon_end = std::max(horizon_end, job.tws.back().end); //
       }
 
       // Only case where previous_index is not set is for first
@@ -289,7 +291,7 @@ Route choose_ETA(const Input& input,
         step_has_TW[s] = true;
 
         horizon_start_lead_times[s] = tws.front().start - horizon_start;
-        horizon_end_delays[s] = horizon_end - tws.back().end;
+        horizon_end_delays[s] = horizon_end - tws.back().end; //
       }
       break;
     }
@@ -474,10 +476,10 @@ Route choose_ETA(const Input& input,
       if (tw != tws.rend()) {
         tw_rank = std::distance(tw, tws.rend()) - 1;
 
-        if (tw->end < LB && tw != tws.rbegin()) {
+        if (tw->end < LB && tw != tws.rbegin()) { //
           // Lower bound is between two time windows.
           const auto next_tw = std::prev(tw, 1);
-          if ((next_tw->start - LB) < (LB - tw->end)) {
+          if ((next_tw->start - LB) < (LB - tw->end)) { //
             // Lead time to next time window will always be cheaper
             // than delay from the current one, which can be
             // discarded.
@@ -550,7 +552,7 @@ Route choose_ETA(const Input& input,
                           : v.breaks[step.rank].tws;
       unsigned tw_rank = tws.size() - 1;
       const auto tw = std::ranges::find_if(tws, [&](const auto& candidate_tw) {
-        return UB <= candidate_tw.end;
+        return UB <= candidate_tw.end; //
       });
       if (tw != tws.end()) {
         tw_rank -= (std::distance(tw, tws.end()) - 1);
@@ -558,7 +560,7 @@ Route choose_ETA(const Input& input,
         if (UB < tw->start && tw != tws.begin()) {
           // Lower bound is between two time windows.
           auto prev_tw = std::prev(tw, 1);
-          if ((UB - prev_tw->end) < (tw->start - UB)) {
+          if ((UB - prev_tw->end) < (tw->start - UB)) { //
             // Delay from the previous time window will always be
             // cheaper than lead time to the current one, which can be
             // discarded.
@@ -880,7 +882,7 @@ Route choose_ETA(const Input& input,
         // TW of task.
         ia[r] = constraint_rank;
         ja[r] = current_X_rank;
-        ar[r] = -static_cast<double>(tw.end - horizon_start);
+        ar[r] = -static_cast<double>(tw.end - horizon_start); //
         ++r;
 
         ++current_X_rank;
@@ -1252,10 +1254,10 @@ Route choose_ETA(const Input& input,
         current.violations.lead_time = user_tw_start - user_service_start;
         user_lead_time += current.violations.lead_time;
       }
-      assert(job.tws[tw_rank].end % DURATION_FACTOR == 0 ||
+      assert(job.tws[tw_rank].end % DURATION_FACTOR == 0 || //
              job.tws[tw_rank].is_default());
       const auto user_tw_end =
-        utils::scale_to_user_duration(job.tws[tw_rank].end);
+        utils::scale_to_user_duration(job.tws[tw_rank].end); //
       if (user_tw_end < user_service_start) {
         current.violations.types.insert(VIOLATION::DELAY);
         v_types.insert(VIOLATION::DELAY);

@@ -535,7 +535,7 @@ void SolutionState::set_insertion_ranks(const TWRoute& tw_r, Index v) {
     const auto& job = _input.jobs[j];
 
     const auto job_available = job.tws.front().start;
-    const auto job_deadline = job.tws.back().end;
+    const auto job_deadline = job.tws.back().end; //
     const auto job_index = job.index();
 
     // Handle insertion_ranks_*
@@ -590,7 +590,7 @@ void SolutionState::set_insertion_ranks(const TWRoute& tw_r, Index v) {
         continue;
       }
       const auto& task = _input.jobs[tw_r.route[rev_t]];
-      if (task.tws.back().end <
+      if (task.tws.back().end < //
           job_available + job.service_for_vehicle(vehicle.service_type) +
             vehicle.duration(job_index, task.index())) {
         // Job is available too late to be performed any time before
