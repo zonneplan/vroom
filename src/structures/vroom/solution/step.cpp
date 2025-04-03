@@ -30,8 +30,7 @@ Step::Step(const Job& job,
     location(job.location),
     id(job.id),
     setup(setup),
-    service(utils::scale_to_user_duration(
-      job.service_for_vehicle(vehicle.service_type))),
+    service(utils::scale_to_user_duration(job.service_for_vehicle(vehicle))),
     load(std::move(load)),
     description(job.description) {
 }

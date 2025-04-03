@@ -104,8 +104,7 @@ inline Eval addition_cost(const Input& input,
   Eval total_eval = previous_eval + next_eval - old_edge_eval;
 
   if (include_service) {
-    Duration service_duration =
-      input.jobs[job_rank].service_for_vehicle(v.service_type);
+    Duration service_duration = input.jobs[job_rank].service_for_vehicle(v);
     total_eval += Eval(v.cost_wrapper.get_discrete_duration_cost_factor() *
                          service_duration,
                        service_duration);

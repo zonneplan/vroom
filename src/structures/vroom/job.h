@@ -16,6 +16,7 @@ All rights reserved (see LICENSE).
 #include "structures/vroom/amount.h"
 #include "structures/vroom/location.h"
 #include "structures/vroom/time_window.h"
+#include "structures/vroom/vehicle.h"
 
 namespace vroom {
 
@@ -66,10 +67,9 @@ struct Job {
     return location.index();
   }
 
-  Duration
-  service_for_vehicle(const std::optional<std::string> service_type) const {
-    if (service_type.has_value()) {
-      auto it = service_per_vehicle_type.find(service_type.value());
+  Duration service_for_vehicle(const Vehicle& vehicle) const {
+    if (vehicle.service_type.has_value()) {
+      auto it = service_per_vehicle_type.find(vehicle.service_type.value());
       return (it != service_per_vehicle_type.end()) ? it->second : service;
     }
 
