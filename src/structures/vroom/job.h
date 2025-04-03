@@ -32,40 +32,35 @@ struct Job {
   const Priority priority;
   const std::vector<TimeWindow> tws;
   const std::string description;
-  const std::optional<std::string> task_type = std::optional<std::string>();
 
   // Constructor for regular one-stop job (JOB_TYPE::SINGLE).
-  Job(
-    Id id,
-    const Location& location,
-    UserDuration setup = 0,
-    UserDuration service = 0,
-    UserDurationMap service_per_vehicle_type = {},
-    Amount delivery = Amount(0),
-    Amount pickup = Amount(0),
-    Skills skills = Skills(),
-    Priority priority = 0,
-    const std::vector<TimeWindow>& tws = std::vector<TimeWindow>(1,
-                                                                 TimeWindow()),
-    std::string description = "",
-    const std::optional<std::string>& task_type = std::optional<std::string>());
+  Job(Id id,
+      const Location& location,
+      UserDuration setup = 0,
+      UserDuration service = 0,
+      UserDurationMap service_per_vehicle_type = {},
+      Amount delivery = Amount(0),
+      Amount pickup = Amount(0),
+      Skills skills = Skills(),
+      Priority priority = 0,
+      const std::vector<TimeWindow>& tws =
+        std::vector<TimeWindow>(1, TimeWindow()),
+      std::string description = "");
 
   // Constructor for pickup and delivery jobs (JOB_TYPE::PICKUP or
   // JOB_TYPE::DELIVERY).
-  Job(
-    Id id,
-    JOB_TYPE type,
-    const Location& location,
-    UserDuration setup = 0,
-    UserDuration service = 0,
-    UserDurationMap service_per_vehicle_type = {},
-    const Amount& amount = Amount(0),
-    Skills skills = Skills(),
-    Priority priority = 0,
-    const std::vector<TimeWindow>& tws = std::vector<TimeWindow>(1,
-                                                                 TimeWindow()),
-    std::string description = "",
-    const std::optional<std::string>& task_type = std::optional<std::string>());
+  Job(Id id,
+      JOB_TYPE type,
+      const Location& location,
+      UserDuration setup = 0,
+      UserDuration service = 0,
+      UserDurationMap service_per_vehicle_type = {},
+      const Amount& amount = Amount(0),
+      Skills skills = Skills(),
+      Priority priority = 0,
+      const std::vector<TimeWindow>& tws =
+        std::vector<TimeWindow>(1, TimeWindow()),
+      std::string description = "");
 
   Index index() const {
     return location.index();
